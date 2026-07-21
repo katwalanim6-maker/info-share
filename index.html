@@ -1,10 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Anim's Info</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anim | Contact Card</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
+padding:20px;
+}
+
+.card{
+width:360px;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(20px);
+border-radius:25px;
+padding:30px;
+text-align:center;
+color:white;
+box-shadow:0 15px 40px rgba(0,0,0,.4);
+}
+
+img{
+width:130px;
+height:130px;
+border-radius:50%;
+border:4px solid white;
+object-fit:cover;
+}
+
+h1{
+margin-top:18px;
+font-size:28px;
+}
+
+p{
+margin:8px 0 25px;
+color:#ddd;
+}
+
+a{
+display:block;
+text-decoration:none;
+background:white;
+color:#111;
+padding:14px;
+margin:12px 0;
+border-radius:14px;
+font-weight:600;
+transition:.3s;
+}
+
+a:hover{
+transform:scale(1.05);
+}
+
+.footer{
+margin-top:20px;
+font-size:13px;
+color:#bbb;
+}
+</style>
+
 </head>
+
 <body>
-    <h1>Hello, I'm Anim 👋</h1>
-    <p>Welcome to my digital contact card.</p>
+
+<div class="card">
+
+<img src="https://i.pravatar.cc/300" alt="Profile">
+
+<h1>Anim Katwal</h1>
+
+<p>Student • Tech Enthusiast • Guitarist</p>
+
+<a href="tel:+97798XXXXXXXX">📞 Phone</a>
+
+<a href="https://t.me/yourusername">✈ Telegram</a>
+
+<a href="https://facebook.com/yourusername">📘 Facebook</a>
+
+<a href="mailto:your@email.com">📧 Email</a>
+
+<a href="https://instagram.com/yourusername">📸 Instagram</a>
+
+<div class="footer">
+Made with ❤️ by Anim
+</div>
+
+</div>
+
 </body>
 </html>
