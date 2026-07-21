@@ -1,0 +1,351 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: #000;
+    color: white;
+    overflow-x: hidden;
+}
+
+
+/* INTRO SCREEN */
+
+#intro {
+    position: fixed;
+    inset: 0;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    cursor: pointer;
+}
+
+.intro-content {
+    text-align: center;
+}
+
+.intro-content h1 {
+    font-size: 45px;
+    letter-spacing: 5px;
+    animation: glow 2s infinite alternate;
+}
+
+.intro-content h2 {
+    margin-top: 15px;
+    font-weight: 400;
+    color: #aaa;
+}
+
+.intro-content p {
+    margin-top: 30px;
+    color: #888;
+}
+
+
+.pulse {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin: 35px auto;
+    animation: pulse 2s infinite;
+}
+
+
+/* LOADING SCREEN */
+
+#loading {
+    position: fixed;
+    inset: 0;
+    background: #050505;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 998;
+}
+
+
+.terminal {
+    width: 320px;
+    padding: 25px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+}
+
+
+.line {
+    margin: 15px 0;
+    color: #ddd;
+}
+
+
+.progress {
+    height: 8px;
+    background: #222;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+
+.bar {
+    width: 0%;
+    height: 100%;
+    background: white;
+    transition: .2s;
+}
+
+
+/* MAIN WEBSITE */
+
+#main {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.background {
+    position: absolute;
+    inset: 0;
+    background:
+    radial-gradient(circle at top,#222,black 60%);
+    z-index: -1;
+}
+
+
+.glass {
+
+    width: 90%;
+    max-width: 420px;
+
+    padding: 35px;
+
+    text-align: center;
+
+    background: rgba(255,255,255,0.08);
+
+    border:1px solid rgba(255,255,255,0.15);
+
+    border-radius:30px;
+
+    backdrop-filter: blur(20px);
+
+    box-shadow:
+    0 0 40px rgba(255,255,255,0.08);
+
+    animation: appear 1s ease;
+
+}
+
+
+.profile {
+
+    width:130px;
+    height:130px;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    border:3px solid white;
+
+    margin-bottom:20px;
+
+}
+
+
+.glass h1 {
+
+    font-size:32px;
+
+}
+
+
+#greeting {
+
+    color:#aaa;
+
+    margin-top:8px;
+
+}
+
+
+.bio {
+
+    margin:20px 0;
+
+    color:#ccc;
+
+}
+/* BUTTONS */
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+.buttons a,
+.buttons button {
+
+    width:100%;
+    padding:14px;
+
+    border-radius:18px;
+
+    border:1px solid rgba(255,255,255,0.2);
+
+    background:rgba(255,255,255,0.08);
+
+    color:white;
+
+    text-decoration:none;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    backdrop-filter:blur(10px);
+
+}
+
+
+.buttons a:hover,
+.buttons button:hover {
+
+    transform:translateY(-4px);
+
+    background:rgba(255,255,255,0.18);
+
+    box-shadow:
+    0 0 20px rgba(255,255,255,0.25);
+
+}
+
+
+/* FOOTER */
+
+.footer {
+
+    margin-top:30px;
+
+    color:#888;
+
+    font-size:13px;
+
+}
+
+
+/* ANIMATIONS */
+
+
+@keyframes glow {
+
+    from {
+
+        text-shadow:
+        0 0 10px white;
+
+    }
+
+    to {
+
+        text-shadow:
+        0 0 30px white;
+
+    }
+
+}
+
+
+
+@keyframes pulse {
+
+    0% {
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+    50% {
+
+        transform:scale(1.3);
+
+        opacity:.4;
+
+    }
+
+    100% {
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+}
+
+
+
+@keyframes appear {
+
+    from {
+
+        opacity:0;
+
+        transform:translateY(40px);
+
+    }
+
+    to {
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+
+/* MOBILE OPTIMIZATION */
+
+@media(max-width:500px){
+
+    .intro-content h1 {
+
+        font-size:32px;
+
+    }
+
+
+    .glass {
+
+        padding:25px;
+
+    }
+
+
+    .glass h1 {
+
+        font-size:27px;
+
+    }
+
+}
