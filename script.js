@@ -195,3 +195,80 @@ END:VCARD`;
 
 
 });
+
+// =======================
+// AI ANIM CHAT
+// =======================
+
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
+
+function addMessage(text, sender) {
+    const message = document.createElement("div");
+    message.classList.add("message", sender);
+    message.innerText = text;
+    chatBox.appendChild(message);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function aiReply(message) {
+
+    message = message.toLowerCase();
+
+    if(message.includes("hello") || message.includes("hi")){
+        return "👋 Hey! I'm AI Anim. Nice to meet you!";
+    }
+
+    if(message.includes("who are you")){
+        return "🤖 I'm AI Anim, the digital version of Anim Katwal.";
+    }
+
+    if(message.includes("music")){
+        return "🎸 Anim loves rock, metal and Nepali rock. He also plays guitar.";
+    }
+
+    if(message.includes("contact")){
+        return "📱 You can contact Anim using the buttons above.";
+    }
+
+    if(message.includes("project")){
+        return "💻 Anim is currently building Anim OS.";
+    }
+
+    return "🧠 That's interesting! Gemini AI will answer this properly soon.";
+}
+
+function sendMessage(){
+
+    const text = input.value.trim();
+
+    if(text==="") return;
+
+    addMessage(text,"user");
+
+    input.value="";
+
+    setTimeout(()=>{
+
+        addMessage(aiReply(text),"ai");
+
+    },700);
+
+}
+
+sendBtn.addEventListener("click",sendMessage);
+
+input.addEventListener("keypress",function(e){
+
+    if(e.key==="Enter"){
+
+        sendMessage();
+
+    }
+
+});
+
+// Welcome message
+addMessage("🤖 Hello! I'm AI Anim. Ask me anything about Anim Katwal.","ai");
