@@ -213,31 +213,40 @@ function addMessage(text, sender) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function aiReply(message) {
+async function aiReply(message) {
 
-    message = message.toLowerCase();
+    try {
 
-    if(message.includes("hello") || message.includes("hi")){
-        return "👋 Hey! I'm AI Anim. Nice to meet you!";
+        const response = await fetch("https://anim-core.onrender.com/chat", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+
+        });
+
+        if (!response.ok) {
+            throw new Error("Server error");
+        }
+
+        const data = await response.json();
+
+        return data.reply || "🤖 I couldn't generate a response.";
+
+    } catch (error) {
+
+        console.error("AI Error:", error);
+
+        return "⚠️ AI Anim is temporarily unavailable. Please try again.";
+
     }
 
-    if(message.includes("who are you")){
-        return "🤖 I'm AI Anim, the digital version of Anim Katwal.";
-    }
-
-    if(message.includes("music")){
-        return "🎸 Anim loves rock, metal and Nepali rock. He also plays guitar.";
-    }
-
-    if(message.includes("contact")){
-        return "📱 You can contact Anim using the buttons above.";
-    }
-
-    if(message.includes("project")){
-        return "💻 Anim is currently building Anim OS.";
-    }
-
-    return "🧠 That's interesting! Gemini AI will answer this properly soon.";
 }
 
 function sendMessage(){
