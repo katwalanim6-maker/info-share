@@ -259,11 +259,13 @@ function sendMessage(){
 
     input.value="";
 
-    setTimeout(()=>{
+  setTimeout(async ()=>{
 
-        addMessage(aiReply(text),"ai");
+    const reply = await aiReply(text);
 
-    },700);
+    addMessage(reply, "ai");
+
+},700);
 
 }
 
