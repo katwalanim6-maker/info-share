@@ -15,14 +15,24 @@
 <body>
 <canvas id="story-canvas" aria-hidden="true"></canvas>
 
-<div id="intro" class="screen-center">
-  <div class="liquid-card intro-card">
-    <div class="logo-drop">💧</div>
-    <p class="eyebrow">DIGITAL IDENTITY</p>
+<div id="intro" class="intro-stage" role="button" tabindex="0" aria-label="Enter Anim OS">
+  <div class="intro-noise"></div>
+  <div class="intro-orbit intro-orbit-a"></div>
+  <div class="intro-orbit intro-orbit-b"></div>
+  <div class="intro-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="intro-card">
+    <div class="intro-glare"></div>
+    <div class="logo-drop intro-logo">💧</div>
+    <p class="eyebrow intro-eyebrow">DIGITAL IDENTITY</p>
     <h1>ANIM KATWAL</h1>
-    <p class="muted">Tap anywhere to enter</p>
-    <div class="pulse"></div>
+    <p class="intro-subtitle">A digital world is forming.</p>
+    <div class="intro-enter">
+      <span class="intro-enter-dot"></span>
+      <span>Tap anywhere to enter</span>
+      <span class="intro-enter-line"></span>
+    </div>
   </div>
+  <div class="intro-skip">ANIM OS <span>•</span> INITIALIZING WORLD</div>
 </div>
 
 <div id="loading" class="screen-center">
@@ -90,7 +100,6 @@
   </main>
 </div>
 
-<!-- Use unpkg for a stable browser build of Three.js. Existing app logic remains in script.js. -->
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
