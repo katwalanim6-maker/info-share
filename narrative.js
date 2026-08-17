@@ -1,141 +1,185 @@
 /*
  * ANIM OS — CINEMATIC NARRATIVE WORLD
- * Visual layer only. Existing application logic remains in script.js.
- * Story: Void -> Awakening -> Identity -> Connection -> Intelligence -> Expansion
+ * Visual layer only. Existing HTML and application logic remain untouched.
+ * Story: VOID -> AWAKENING -> IDENTITY -> CONNECTION -> INTELLIGENCE -> EXPANSION
  */
-(function () {
+(() => {
   'use strict';
 
-  function boot() {
-    if (!window.THREE || !window.gsap || !window.ScrollTrigger) return;
-    gsap.registerPlugin(ScrollTrigger);
+  let started = false;
+
+  window.initNarrativeWorld = function initNarrativeWorld() {
+    if (started) {
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      return;
+    }
+    if (!window.THREE || !window.gsap || !window.ScrollTrigger) {
+      console.warn('Narrative world dependencies are not ready.');
+      return;
+    }
 
     const canvas = document.getElementById('story-canvas');
     const main = document.getElementById('main');
-    if (!canvas || !main) return;
+    if (!canvas || !main || getComputedStyle(main).display === 'none') return;
 
+    started = true;
+    gsap.registerPlugin(ScrollTrigger);
+
+    const isMobile = window.matchMedia('(max-width: 700px)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ---------- Renderer ----------
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x02040a, 0.012);
+    scene.fog = new THREE.FogExp2(0x02040a, isMobile ? 0.014 : 0.011);
 
-    const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 1200);
+    const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 42);
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true,
       alpha: true,
+      antialias: !isMobile,
       powerPreference: 'high-performance'
     });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
+    renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.25 : 1.7));
     renderer.setSize(innerWidth, innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.0;
+
+    canvas.classList.add('story-ready');
 
     const world = new THREE.Group();
     scene.add(world);
 
-    const ambient = new THREE.AmbientLight(0x8ecfff, 0.22);
-    const key = new THREE.PointLight(0x39dfff, 18, 180, 2);
-    key.position.set(0, 4, 16);
-    const violet = new THREE.PointLight(0x8b5cf6, 12, 160, 2);
-    violet.position.set(-18, -8, -12);
-    scene.add(ambient, key, violet);
+    // ---------- Lighting ----------
+    scene.add(new THREE.AmbientLight(0x8ecfff, 0.16));
+
+    const keyLight = new THREE.PointLight(0x39dfff, isMobile ? 12 : 20, 170, 2);
+    keyLight.position.set(0, 4, 15);
+    scene.add(keyLight);
+
+    const violetLight = new THREE.PointLight(0x8b5cf6, isMobile ? 7 : 12, 150, 2);
+    violetLight.position.set(-18, -10, -15);
+    scene.add(violetLight);
+
+    // ---------- State ----------
+    const state = {
+      progress: 0,
+      velocity: 0,
+      targetVelocity: 0,
+      pointerX: 0,
+      pointerY: 0,
+      targetPointerX: 0,
+      targetPointerY: 0
+    };
 
     const clock = new THREE.Clock();
-    const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
-    const state = { progress: 0, velocity: 0, lastScroll: scrollY };
 
-    // ---------- Particle universe ----------
-    const mobile = innerWidth < 700;
-    const count = mobile ? 2200 : 5200;
-    const positions = new Float32Array(count * 3);
-    const seeds = new Float32Array(count * 3);
-    const grid = new Float32Array(count * 3);
+    // ---------- Particles: the world begins as one spark, then becomes a universe ----------
+    const particleCount = reducedMotion ? 900 : (isMobile ? 1800 : 4200);
+    const positions = new Float32Array(particleCount * 3);
+    const seeds = new Float32Array(particleCount * 3);
+    const targets = new Float32Array(particleCount * 3);
 
-    for (let i = 0; i < count; i++) {
-      const i3 = i * 3;
-      const r = 7 + Math.random() * 70;
-      const a = Math.random() * Math.PI * 2;
-      const b = Math.acos(THREE.MathUtils.randFloatSpread(2));
-      seeds[i3] = positions[i3] = Math.sin(b) * Math.cos(a) * r;
-      seeds[i3 + 1] = positions[i3 + 1] = Math.sin(b) * Math.sin(a) * r;
-      seeds[i3 + 2] = positions[i3 + 2] = Math.cos(b) * r - 20;
+    for (let i = 0; i < particleCount; i++) {
+      const j = i * 3;
+      const radius = 8 + Math.random() * 72;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(THREE.MathUtils.randFloatSpread(2));
 
-      const cols = mobile ? 55 : 75;
+      const x = Math.sin(phi) * Math.cos(theta) * radius;
+      const y = Math.sin(phi) * Math.sin(theta) * radius;
+      const z = Math.cos(phi) * radius - 22;
+
+      seeds[j] = positions[j] = x;
+      seeds[j + 1] = positions[j + 1] = y;
+      seeds[j + 2] = positions[j + 2] = z;
+
+      const cols = isMobile ? 45 : 65;
       const row = Math.floor(i / cols);
       const col = i % cols;
-      grid[i3] = (col / Math.max(cols - 1, 1) - 0.5) * 45;
-      grid[i3 + 1] = (row / Math.max(Math.ceil(count / cols) - 1, 1) - 0.5) * 28;
-      grid[i3 + 2] = Math.sin(col * 0.17) * 3 + Math.cos(row * 0.11) * 2 - 18;
+      targets[j] = (col / Math.max(cols - 1, 1) - 0.5) * 46;
+      targets[j + 1] = (row / Math.max(Math.ceil(particleCount / cols) - 1, 1) - 0.5) * 29;
+      targets[j + 2] = Math.sin(col * 0.18) * 2.7 + Math.cos(row * 0.13) * 2.1 - 18;
     }
 
-    const particleGeo = new THREE.BufferGeometry();
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const particleMat = new THREE.PointsMaterial({
-      color: 0x8feaff,
-      size: mobile ? 0.075 : 0.095,
+    const particleGeometry = new THREE.BufferGeometry();
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const particleMaterial = new THREE.PointsMaterial({
+      color: 0x9deeff,
+      size: isMobile ? 0.075 : 0.09,
       transparent: true,
       opacity: 0,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
-    const particles = new THREE.Points(particleGeo, particleMat);
+
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
     world.add(particles);
 
-    // A small central point: the first spark.
-    const coreGeo = new THREE.SphereGeometry(0.16, 20, 20);
-    const coreMat = new THREE.MeshBasicMaterial({ color: 0xdffcff, transparent: true, opacity: 0 });
-    const core = new THREE.Mesh(coreGeo, coreMat);
+    // ---------- Central core and halo ----------
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(0.16, isMobile ? 12 : 20, isMobile ? 12 : 20),
+      new THREE.MeshBasicMaterial({ color: 0xe9fdff, transparent: true, opacity: 0 })
+    );
     world.add(core);
 
     const halo = new THREE.Sprite(new THREE.SpriteMaterial({
       color: 0x42e8ff,
       transparent: true,
       opacity: 0,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
     }));
     halo.scale.set(5, 5, 1);
     world.add(halo);
 
-    // ---------- Deep-space dust / starfield ----------
-    const starCount = mobile ? 700 : 1500;
-    const starPos = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount * 3; i += 3) {
-      starPos[i] = THREE.MathUtils.randFloatSpread(180);
-      starPos[i + 1] = THREE.MathUtils.randFloatSpread(110);
-      starPos[i + 2] = THREE.MathUtils.randFloat(-150, 35);
+    // ---------- Ambient starfield ----------
+    const starCount = reducedMotion ? 300 : (isMobile ? 550 : 1100);
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      const j = i * 3;
+      starPositions[j] = THREE.MathUtils.randFloatSpread(190);
+      starPositions[j + 1] = THREE.MathUtils.randFloatSpread(115);
+      starPositions[j + 2] = THREE.MathUtils.randFloat(-170, 30);
     }
-    const starGeo = new THREE.BufferGeometry();
-    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-    const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
-      color: 0x9fdcff,
-      size: mobile ? 0.035 : 0.045,
+    const starGeometry = new THREE.BufferGeometry();
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMaterial = new THREE.PointsMaterial({
+      color: 0xb9eaff,
+      size: isMobile ? 0.035 : 0.045,
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.07,
       depthWrite: false
-    }));
+    });
+    const stars = new THREE.Points(starGeometry, starMaterial);
     world.add(stars);
 
     // ---------- Glass architecture ----------
     const glassGroup = new THREE.Group();
     world.add(glassGroup);
-    const glassMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x8feaff,
-      transparent: true,
-      opacity: 0,
-      roughness: 0.12,
-      metalness: 0.02,
-      transmission: 0.72,
-      thickness: 0.5,
-      side: THREE.DoubleSide
-    });
     const glassMeshes = [];
-    for (let i = 0; i < 5; i++) {
-      const geo = new THREE.PlaneGeometry(8 + i * 2, 12 + i * 2);
-      const mesh = new THREE.Mesh(geo, glassMaterial.clone());
-      mesh.position.set((i - 2) * 10, (i % 2 ? 2 : -2), -12 - i * 2);
+    const glassCount = isMobile ? 3 : 5;
+
+    for (let i = 0; i < glassCount; i++) {
+      const material = new THREE.MeshPhysicalMaterial({
+        color: 0x8feaff,
+        transparent: true,
+        opacity: 0,
+        roughness: 0.15,
+        metalness: 0.02,
+        transmission: isMobile ? 0.45 : 0.68,
+        thickness: 0.45,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(8 + i * 2.2, 12 + i * 2.1),
+        material
+      );
+      mesh.position.set((i - (glassCount - 1) / 2) * 10, i % 2 ? 2 : -2, -14 - i * 2);
       mesh.rotation.set((i - 2) * 0.035, (i - 2) * 0.11, (i - 2) * 0.025);
       glassGroup.add(mesh);
       glassMeshes.push(mesh);
@@ -143,207 +187,234 @@
 
     // ---------- Connection network ----------
     const networkGroup = new THREE.Group();
-    world.add(networkGroup);
-    const nodeCount = 8;
-    const nodePositions = [];
     const nodeGroup = new THREE.Group();
     networkGroup.add(nodeGroup);
+    world.add(networkGroup);
+
+    const nodeCount = isMobile ? 6 : 9;
+    const nodePositions = [];
+    const nodeMaterials = [];
 
     for (let i = 0; i < nodeCount; i++) {
-      const a = (i / nodeCount) * Math.PI * 2;
-      const radius = 9 + (i % 2) * 3;
-      const p = new THREE.Vector3(Math.cos(a) * radius, Math.sin(a) * radius * 0.72, -2 - (i % 3) * 2);
-      nodePositions.push(p);
-      const n = new THREE.Mesh(
-        new THREE.SphereGeometry(0.13, 12, 12),
-        new THREE.MeshBasicMaterial({ color: 0x8feaff, transparent: true, opacity: 0 })
+      const angle = (i / nodeCount) * Math.PI * 2;
+      const radius = 8 + (i % 3) * 2.5;
+      const position = new THREE.Vector3(
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius * 0.7,
+        -2 - (i % 3) * 2
       );
-      n.position.copy(p);
-      nodeGroup.add(n);
+      nodePositions.push(position);
+
+      const material = new THREE.MeshBasicMaterial({
+        color: 0x9deeff,
+        transparent: true,
+        opacity: 0
+      });
+      nodeMaterials.push(material);
+
+      const node = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12), material);
+      node.position.copy(position);
+      nodeGroup.add(node);
     }
 
     const linePositions = [];
-    for (let i = 0; i < nodePositions.length; i++) {
-      linePositions.push(0, 0, 0, nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
-    }
-    const lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-    const lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({
+    nodePositions.forEach((p) => linePositions.push(0, 0, 0, p.x, p.y, p.z));
+    const lineGeometry = new THREE.BufferGeometry();
+    lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+    const lineMaterial = new THREE.LineBasicMaterial({
       color: 0x64e8ff,
       transparent: true,
       opacity: 0,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    }));
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
     networkGroup.add(lines);
 
-    // ---------- Scroll narrative ----------
-    const proxy = { p: 0 };
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: main,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1.35,
-        onUpdate: self => {
-          state.progress = self.progress;
-          state.velocity = self.getVelocity();
-        }
+    // ---------- ScrollTrigger: one continuous camera journey ----------
+    const scrollState = { p: 0 };
+    const scrollTrigger = ScrollTrigger.create({
+      trigger: main,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1.25,
+      invalidateOnRefresh: true,
+      onUpdate(self) {
+        scrollState.p = self.progress;
+        state.progress = self.progress;
+        state.targetVelocity = THREE.MathUtils.clamp(self.getVelocity() / 2500, -1.5, 1.5);
       }
     });
 
-    // 0–15% THE VOID
-    tl.to(proxy, { p: 0.15, duration: 1, ease: 'none' }, 0);
-    tl.to(coreMat, { opacity: 1, duration: 0.6 }, 0);
-    tl.to(halo.material, { opacity: 0.35, duration: 0.7 }, 0.05);
-    tl.to(halo.scale, { x: 8, y: 8, duration: 1 }, 0.08);
-
-    // 15–35% AWAKENING
-    tl.to(particleMat, { opacity: 0.72, duration: 1.1 }, 1);
-    tl.to(core.scale, { x: 2.5, y: 2.5, z: 2.5, duration: 1 }, 1);
-    tl.to(stars.material, { opacity: 0.24, duration: 1 }, 1.1);
-    tl.to(proxy, { p: 0.35, duration: 1.2, ease: 'none' }, 1);
-
-    // 35–55% IDENTITY
-    tl.to(glassGroup.position, { z: 10, duration: 1.4, ease: 'power2.inOut' }, 2);
-    glassMeshes.forEach((m, i) => {
-      tl.to(m.material, { opacity: 0.13, duration: 0.9 }, 2 + i * 0.05);
-      tl.to(m.rotation, { y: m.rotation.y * 0.35, duration: 1 }, 2);
+    // A GSAP tween gives the scroll controller a real scrubbed animation state.
+    const cinematic = gsap.to(scrollState, {
+      p: 1,
+      duration: 10,
+      ease: 'none',
+      paused: true,
+      onUpdate: () => { state.progress = scrollState.p; }
     });
-    tl.to(camera.position, { z: 26, y: 1.2, duration: 1.5, ease: 'power2.inOut' }, 2);
-    tl.to(proxy, { p: 0.55, duration: 1.2, ease: 'none' }, 2);
+    scrollTrigger.animation = cinematic;
 
-    // 55–75% CONNECTION
-    tl.to(networkGroup.position, { z: 4, duration: 1.2, ease: 'power2.inOut' }, 3.25);
-    tl.to(lines.material, { opacity: 0.32, duration: 1 }, 3.3);
-    nodeGroup.children.forEach((n, i) => tl.to(n.material, { opacity: 0.8, duration: 0.5 }, 3.25 + i * 0.05));
-    tl.to(proxy, { p: 0.75, duration: 1.2, ease: 'none' }, 3.25);
-
-    // 75–90% INTELLIGENCE
-    tl.to(networkGroup.rotation, { z: Math.PI * 1.8, duration: 1.5, ease: 'power2.inOut' }, 4.5);
-    tl.to(particleMat, { color: new THREE.Color(0xcfffff), size: mobile ? 0.11 : 0.14, duration: 1 }, 4.5);
-    tl.to(coreMat, { color: new THREE.Color(0xffffff), duration: 1 }, 4.5);
-    tl.to(camera.position, { z: 18, y: -1, duration: 1.4 }, 4.5);
-    tl.to(proxy, { p: 0.9, duration: 1, ease: 'none' }, 4.5);
-
-    // 90–100% EXPANSION
-    tl.to(camera.position, { z: 36, y: 0, duration: 1.8, ease: 'power2.inOut' }, 5.6);
-    tl.to(stars.material, { opacity: 0.42, duration: 1.2 }, 5.6);
-    tl.to(particleMat, { opacity: 0.28, duration: 1 }, 5.8);
-    tl.to(proxy, { p: 1, duration: 0.8, ease: 'none' }, 5.6);
-
-    // Existing UI becomes part of the environment.
+    // ---------- Existing UI cinematic depth ----------
     const hero = document.getElementById('profile');
     const contact = document.getElementById('contact');
     const ai = document.getElementById('ai-section');
     const uiTargets = [hero, contact, ai].filter(Boolean);
-    uiTargets.forEach(el => el.classList.add('narrative-ui'));
 
-    gsap.set(uiTargets, { transformPerspective: 1400, transformOrigin: '50% 50%' });
-
-    gsap.fromTo(hero,
-      { y: 40, rotateX: 5, scale: 0.97 },
-      { y: 0, rotateX: 0, scale: 1, duration: 1.4, ease: 'power3.out', scrollTrigger: { trigger: hero, start: 'top 82%', end: 'top 40%', scrub: 1 } }
-    );
-
-    gsap.fromTo(contact,
-      { y: 80, rotateX: 8, rotateY: -2, scale: 0.96 },
-      { y: 0, rotateX: 0, rotateY: 0, scale: 1, ease: 'power3.out', scrollTrigger: { trigger: contact, start: 'top 90%', end: 'top 45%', scrub: 1.2 } }
-    );
-
-    gsap.fromTo(ai,
-      { y: 100, rotateX: 9, rotateY: 2, scale: 0.95 },
-      { y: 0, rotateX: 0, rotateY: 0, scale: 1, ease: 'power3.out', scrollTrigger: { trigger: ai, start: 'top 92%', end: 'top 42%', scrub: 1.25 } }
-    );
-
-    // Contact cards have individual depth and react to the world.
-    document.querySelectorAll('.contact-card').forEach((card, i) => {
-      card.addEventListener('mouseenter', () => {
-        gsap.to(card, { z: 24, y: -5, rotateY: i % 2 ? -3 : 3, duration: 0.45, ease: 'power3.out' });
-        gsap.to(key, { intensity: 26, duration: 0.45 });
-      });
-      card.addEventListener('mouseleave', () => {
-        gsap.to(card, { z: 0, y: 0, rotateY: 0, duration: 0.6, ease: 'power3.out' });
-        gsap.to(key, { intensity: 18, duration: 0.7 });
+    uiTargets.forEach(el => {
+      el.classList.add('narrative-ui');
+      gsap.set(el, {
+        transformPerspective: 1400,
+        transformOrigin: '50% 50%'
       });
     });
 
-    // Mouse creates a subtle “looking through a window” effect.
-    window.addEventListener('pointermove', e => {
-      pointer.tx = (e.clientX / innerWidth - 0.5);
-      pointer.ty = (e.clientY / innerHeight - 0.5);
+    if (!reducedMotion) {
+      if (hero) gsap.fromTo(hero,
+        { y: 55, rotateX: 6, scale: 0.97 },
+        { y: 0, rotateX: 0, scale: 1, ease: 'power3.out', scrollTrigger: { trigger: hero, start: 'top 88%', end: 'top 45%', scrub: 1 } }
+      );
+      if (contact) gsap.fromTo(contact,
+        { y: 90, rotateX: 8, rotateY: -3, scale: 0.96 },
+        { y: 0, rotateX: 0, rotateY: 0, scale: 1, ease: 'power3.out', scrollTrigger: { trigger: contact, start: 'top 92%', end: 'top 43%', scrub: 1.2 } }
+      );
+      if (ai) gsap.fromTo(ai,
+        { y: 110, rotateX: 9, rotateY: 3, scale: 0.95 },
+        { y: 0, rotateX: 0, rotateY: 0, scale: 1, ease: 'power3.out', scrollTrigger: { trigger: ai, start: 'top 94%', end: 'top 40%', scrub: 1.25 } }
+      );
+    }
+
+    // Every existing contact card remains a normal <a>. We only add visual feedback.
+    document.querySelectorAll('.contact-card').forEach((card, index) => {
+      card.addEventListener('pointerenter', () => {
+        gsap.to(card, { z: 22, y: -5, rotateY: index % 2 ? -3 : 3, duration: 0.4, overwrite: true });
+        gsap.to(keyLight, { intensity: isMobile ? 15 : 27, duration: 0.35, overwrite: true });
+      });
+      card.addEventListener('pointerleave', () => {
+        gsap.to(card, { z: 0, y: 0, rotateY: 0, duration: 0.55, overwrite: true });
+        gsap.to(keyLight, { intensity: isMobile ? 12 : 20, duration: 0.55, overwrite: true });
+      });
+      card.addEventListener('pointerdown', () => {
+        // Touch has no hover, so give the world a short physical pulse.
+        gsap.fromTo(card, { scale: 0.985 }, { scale: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
+      }, { passive: true });
+    });
+
+    // Existing buttons also influence the environment, without changing their actions.
+    document.querySelectorAll('.liquid-btn').forEach(button => {
+      button.addEventListener('pointerdown', () => {
+        gsap.to(keyLight, { intensity: isMobile ? 15 : 30, duration: 0.12, yoyo: true, repeat: 1 });
+      }, { passive: true });
+    });
+
+    // ---------- Pointer parallax ----------
+    window.addEventListener('pointermove', event => {
+      state.targetPointerX = event.clientX / innerWidth - 0.5;
+      state.targetPointerY = event.clientY / innerHeight - 0.5;
     }, { passive: true });
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', resize, { passive: true });
 
     function resize() {
       camera.aspect = innerWidth / innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1.35 : 1.8));
+      renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1.25 : 1.7));
       renderer.setSize(innerWidth, innerHeight);
       ScrollTrigger.refresh();
     }
 
-    function updateParticles(time) {
-      const arr = particleGeo.attributes.position.array;
+    // ---------- Story mechanics ----------
+    function updateWorld(time) {
       const p = state.progress;
-      const awakening = THREE.MathUtils.clamp((p - 0.12) / 0.28, 0, 1);
-      const easeAwaken = awakening * awakening * (3 - 2 * awakening);
-      const expansion = THREE.MathUtils.clamp((p - 0.75) / 0.25, 0, 1);
 
-      for (let i = 0; i < count; i++) {
-        const i3 = i * 3;
-        const wave = Math.sin(time * 0.45 + i * 0.017) * 0.35;
-        const nx = seeds[i3] + Math.sin(time * 0.25 + seeds[i3 + 1] * 0.08) * 1.2;
-        const ny = seeds[i3 + 1] + Math.cos(time * 0.22 + seeds[i3] * 0.07) * 1.2;
-        const nz = seeds[i3 + 2] + wave;
-        arr[i3] = THREE.MathUtils.lerp(nx, grid[i3], easeAwaken) * (1 + expansion * 0.35);
-        arr[i3 + 1] = THREE.MathUtils.lerp(ny, grid[i3 + 1], easeAwaken) * (1 + expansion * 0.35);
-        arr[i3 + 2] = THREE.MathUtils.lerp(nz, grid[i3 + 2], easeAwaken) - expansion * 28;
+      // 0–15% VOID: only the spark is alive.
+      const voidProgress = THREE.MathUtils.clamp(p / 0.15, 0, 1);
+      core.scale.setScalar(0.8 + voidProgress * 0.8);
+      core.material.opacity = voidProgress;
+      halo.material.opacity = voidProgress * 0.3;
+      halo.scale.setScalar(5 + voidProgress * 3);
+
+      // 15–35% AWAKENING: particles move from random space into a pattern.
+      const awaken = THREE.MathUtils.smoothstep(p, 0.15, 0.35);
+      particleMaterial.opacity = awaken * 0.68;
+      starMaterial.opacity = 0.07 + awaken * 0.14;
+
+      const positionArray = particleGeometry.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        const j = i * 3;
+        const noise = Math.sin(time * 0.35 + i * 0.013) * 0.28 + Math.cos(time * 0.23 + i * 0.009) * 0.18;
+        positionArray[j] = THREE.MathUtils.lerp(seeds[j], targets[j], awaken) + noise * (0.3 + awaken);
+        positionArray[j + 1] = THREE.MathUtils.lerp(seeds[j + 1], targets[j + 1], awaken) + Math.cos(time * 0.31 + i) * 0.16;
+        positionArray[j + 2] = THREE.MathUtils.lerp(seeds[j + 2], targets[j + 2], awaken) + Math.sin(time * 0.28 + i) * 0.12;
       }
-      particleGeo.attributes.position.needsUpdate = true;
+      particleGeometry.attributes.position.needsUpdate = true;
+
+      // 35–55% IDENTITY: glass architecture docks around the real profile UI.
+      const identity = THREE.MathUtils.smoothstep(p, 0.35, 0.55);
+      glassGroup.position.z = THREE.MathUtils.lerp(-4, 9, identity);
+      glassMeshes.forEach((mesh, i) => {
+        mesh.material.opacity = identity * (0.07 + i * 0.012);
+        mesh.rotation.y += (i - 2) * 0.00008;
+      });
+
+      // 55–75% CONNECTION: network grows outward from the identity core.
+      const connection = THREE.MathUtils.smoothstep(p, 0.55, 0.75);
+      networkGroup.position.z = THREE.MathUtils.lerp(-3, 5, connection);
+      lineMaterial.opacity = connection * 0.32;
+      nodeMaterials.forEach((material, i) => {
+        const stagger = THREE.MathUtils.clamp((connection - i / (nodeCount * 1.4)) * 1.8, 0, 1);
+        material.opacity = stagger * 0.8;
+      });
+
+      // 75–90% INTELLIGENCE: everything converges and speeds up.
+      const intelligence = THREE.MathUtils.smoothstep(p, 0.75, 0.9);
+      networkGroup.rotation.z = intelligence * Math.PI * 1.7;
+      particleMaterial.size = THREE.MathUtils.lerp(isMobile ? 0.075 : 0.09, isMobile ? 0.105 : 0.14, intelligence);
+      particleMaterial.color.lerp(new THREE.Color(0xcfffff), intelligence * 0.035);
+      keyLight.intensity = (isMobile ? 12 : 20) + intelligence * (isMobile ? 4 : 9);
+      core.material.color.lerp(new THREE.Color(0xffffff), intelligence * 0.04);
+
+      // 90–100% EXPANSION: camera pulls back into the larger universe.
+      const expansion = THREE.MathUtils.smoothstep(p, 0.9, 1);
+      camera.position.z = THREE.MathUtils.lerp(42, 57, expansion);
+      starMaterial.opacity = THREE.MathUtils.lerp(starMaterial.opacity, 0.24 + expansion * 0.2, 0.08);
+
+      // Scroll velocity becomes physical momentum instead of a hard snap.
+      state.velocity = THREE.MathUtils.lerp(state.velocity, state.targetVelocity, 0.08);
+      world.rotation.z += state.velocity * 0.0008;
+      world.position.z = state.velocity * 0.6;
     }
 
-    function animate() {
-      requestAnimationFrame(animate);
+    function render() {
       const time = clock.getElapsedTime();
 
-      pointer.x += (pointer.tx - pointer.x) * 0.045;
-      pointer.y += (pointer.ty - pointer.y) * 0.045;
+      state.pointerX = THREE.MathUtils.lerp(state.pointerX, state.targetPointerX, 0.045);
+      state.pointerY = THREE.MathUtils.lerp(state.pointerY, state.targetPointerY, 0.045);
 
-      const mouseStrength = mobile ? 0.35 : 1;
-      world.rotation.y += ((pointer.x * 0.055 * mouseStrength) - world.rotation.y) * 0.025;
-      world.rotation.x += ((-pointer.y * 0.045 * mouseStrength) - world.rotation.x) * 0.025;
+      const ambientX = state.pointerX * 1.7;
+      const ambientY = -state.pointerY * 1.2;
+      camera.position.x = THREE.MathUtils.lerp(camera.position.x, ambientX, 0.035);
+      camera.position.y = THREE.MathUtils.lerp(camera.position.y, ambientY, 0.035);
 
-      stars.rotation.y += 0.00025;
-      stars.rotation.x = Math.sin(time * 0.05) * 0.015;
-      particles.rotation.z = Math.sin(time * 0.08) * 0.025;
-      core.scale.setScalar(1 + Math.sin(time * 2.2) * 0.08);
-      halo.material.opacity = Math.max(0, 0.16 + Math.sin(time * 1.6) * 0.05) * (state.progress > 0.12 ? 1 : 0.7);
-      halo.rotation.z += 0.002;
+      stars.rotation.y += 0.00012;
+      particles.rotation.y += 0.00018 + Math.abs(state.velocity) * 0.0005;
+      core.rotation.y += 0.002;
 
-      const scrollKick = Math.min(Math.abs(state.velocity) / 3500, 0.5);
-      key.position.x = pointer.x * 18;
-      key.position.y = 4 - pointer.y * 10;
-      key.intensity = 18 + scrollKick * 18;
-
-      updateParticles(time);
+      updateWorld(time);
+      camera.lookAt(0, 0, -8);
       renderer.render(scene, camera);
+      requestAnimationFrame(render);
     }
 
-    // Keep the canvas visible only once the existing app has entered the main UI.
-    const reveal = () => {
-      if (main.style.display !== 'none') {
-        canvas.classList.add('story-ready');
-        ScrollTrigger.refresh();
-      }
-    };
-    const observer = new MutationObserver(reveal);
-    observer.observe(main, { attributes: true, attributeFilter: ['style'] });
-    reveal();
-    animate();
-  }
+    // Respect reduced-motion users while keeping the interface fully usable.
+    if (reducedMotion) {
+      particleMaterial.opacity = 0.16;
+      starMaterial.opacity = 0.1;
+    }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+    // Initial refresh is deliberately AFTER #main becomes visible.
+    ScrollTrigger.refresh();
+    render();
+  };
 })();
