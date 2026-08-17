@@ -1,5 +1,27 @@
-/* Cinematic world visibility fix */
+/* Cinematic layer stability */
 #story-canvas {
-  opacity: 1 !important;
-  visibility: visible !important;
+  visibility: visible;
+}
+
+#intro {
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+#intro.is-exiting {
+  opacity: 0;
+  transform: scale(1.025);
+}
+
+#main {
+  isolation: isolate;
+}
+
+#story-canvas {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #intro { transition: none; }
+  #intro.is-exiting { transform: none; }
 }
