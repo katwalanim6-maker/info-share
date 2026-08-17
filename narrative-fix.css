@@ -1,0 +1,5 @@
+/* Cinematic world visibility fix */
+#story-canvas {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
