@@ -46,7 +46,6 @@
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
-
     canvas.classList.add('story-ready');
 
     const world = new THREE.Group();
@@ -73,7 +72,6 @@
       targetPointerX: 0,
       targetPointerY: 0
     };
-
     const clock = new THREE.Clock();
 
     // ---------- Particles: the world begins as one spark, then becomes a universe ----------
@@ -106,23 +104,25 @@
 
     const particleGeometry = new THREE.BufferGeometry();
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
+    const baseParticleColor = new THREE.Color(0x9deeff);
+    const intelligenceParticleColor = new THREE.Color(0xcfffff);
     const particleMaterial = new THREE.PointsMaterial({
-      color: 0x9deeff,
+      color: baseParticleColor,
       size: isMobile ? 0.075 : 0.09,
       transparent: true,
       opacity: 0,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
-
     const particles = new THREE.Points(particleGeometry, particleMaterial);
     world.add(particles);
 
     // ---------- Central core and halo ----------
+    const coreBaseColor = new THREE.Color(0xe9fdff);
+    const coreIntelligenceColor = new THREE.Color(0xffffff);
     const core = new THREE.Mesh(
       new THREE.SphereGeometry(0.16, isMobile ? 12 : 20, isMobile ? 12 : 20),
-      new THREE.MeshBasicMaterial({ color: 0xe9fdff, transparent: true, opacity: 0 })
+      new THREE.MeshBasicMaterial({ color: coreBaseColor, transparent: true, opacity: 0 })
     );
     world.add(core);
 
@@ -205,20 +205,15 @@
       );
       nodePositions.push(position);
 
-      const material = new THREE.MeshBasicMaterial({
-        color: 0x9deeff,
-        transparent: true,
-        opacity: 0
-      });
+      const material = new THREE.MeshBasicMaterial({ color: 0x9deeff, transparent: true, opacity: 0 });
       nodeMaterials.push(material);
-
       const node = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12), material);
       node.position.copy(position);
       nodeGroup.add(node);
     }
 
     const linePositions = [];
-    nodePositions.forEach((p) => linePositions.push(0, 0, 0, p.x, p.y, p.z));
+    nodePositions.forEach(p => linePositions.push(0, 0, 0, p.x, p.y, p.z));
     const lineGeometry = new THREE.BufferGeometry();
     lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
     const lineMaterial = new THREE.LineBasicMaterial({
@@ -231,8 +226,7 @@
     const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
     networkGroup.add(lines);
 
-    // ---------- ScrollTrigger: one continuous camera journey ----------
-    const scrollState = { p: 0 };
+    // ---------- ScrollTrigger ----------
     const scrollTrigger = ScrollTrigger.create({
       trigger: main,
       start: 'top top',
@@ -240,21 +234,25 @@
       scrub: 1.25,
       invalidateOnRefresh: true,
       onUpdate(self) {
-        scrollState.p = self.progress;
         state.progress = self.progress;
         state.targetVelocity = THREE.MathUtils.clamp(self.getVelocity() / 2500, -1.5, 1.5);
       }
     });
 
-    // A GSAP tween gives the scroll controller a real scrubbed animation state.
-    const cinematic = gsap.to(scrollState, {
-      p: 1,
+    // Keep a GSAP timeline tied to the same scroll progress. It controls the narrative
+    // state without replacing or moving any existing HTML functionality.
+    gsap.to(state, {
+      progress: 1,
       duration: 10,
       ease: 'none',
-      paused: true,
-      onUpdate: () => { state.progress = scrollState.p; }
+      scrollTrigger: {
+        trigger: main,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.25,
+        invalidateOnRefresh: true
+      }
     });
-    scrollTrigger.animation = cinematic;
 
     // ---------- Existing UI cinematic depth ----------
     const hero = document.getElementById('profile');
@@ -264,10 +262,7 @@
 
     uiTargets.forEach(el => {
       el.classList.add('narrative-ui');
-      gsap.set(el, {
-        transformPerspective: 1400,
-        transformOrigin: '50% 50%'
-      });
+      gsap.set(el, { transformPerspective: 1400, transformOrigin: '50% 50%' });
     });
 
     if (!reducedMotion) {
@@ -296,7 +291,6 @@
         gsap.to(keyLight, { intensity: isMobile ? 12 : 20, duration: 0.55, overwrite: true });
       });
       card.addEventListener('pointerdown', () => {
-        // Touch has no hover, so give the world a short physical pulse.
         gsap.fromTo(card, { scale: 0.985 }, { scale: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
       }, { passive: true });
     });
@@ -328,14 +322,14 @@
     function updateWorld(time) {
       const p = state.progress;
 
-      // 0–15% VOID: only the spark is alive.
+      // 0–15% VOID: one spark slowly wakes up.
       const voidProgress = THREE.MathUtils.clamp(p / 0.15, 0, 1);
       core.scale.setScalar(0.8 + voidProgress * 0.8);
       core.material.opacity = voidProgress;
       halo.material.opacity = voidProgress * 0.3;
       halo.scale.setScalar(5 + voidProgress * 3);
 
-      // 15–35% AWAKENING: particles move from random space into a pattern.
+      // 15–35% AWAKENING: random particles form an intentional pattern.
       const awaken = THREE.MathUtils.smoothstep(p, 0.15, 0.35);
       particleMaterial.opacity = awaken * 0.68;
       starMaterial.opacity = 0.07 + awaken * 0.14;
@@ -350,7 +344,7 @@
       }
       particleGeometry.attributes.position.needsUpdate = true;
 
-      // 35–55% IDENTITY: glass architecture docks around the real profile UI.
+      // 35–55% IDENTITY: translucent 3D architecture docks around the real profile.
       const identity = THREE.MathUtils.smoothstep(p, 0.35, 0.55);
       glassGroup.position.z = THREE.MathUtils.lerp(-4, 9, identity);
       glassMeshes.forEach((mesh, i) => {
@@ -358,7 +352,7 @@
         mesh.rotation.y += (i - 2) * 0.00008;
       });
 
-      // 55–75% CONNECTION: network grows outward from the identity core.
+      // 55–75% CONNECTION: the network grows outward from the identity.
       const connection = THREE.MathUtils.smoothstep(p, 0.55, 0.75);
       networkGroup.position.z = THREE.MathUtils.lerp(-3, 5, connection);
       lineMaterial.opacity = connection * 0.32;
@@ -367,20 +361,20 @@
         material.opacity = stagger * 0.8;
       });
 
-      // 75–90% INTELLIGENCE: everything converges and speeds up.
+      // 75–90% INTELLIGENCE: the network converges and the core becomes brighter.
       const intelligence = THREE.MathUtils.smoothstep(p, 0.75, 0.9);
       networkGroup.rotation.z = intelligence * Math.PI * 1.7;
       particleMaterial.size = THREE.MathUtils.lerp(isMobile ? 0.075 : 0.09, isMobile ? 0.105 : 0.14, intelligence);
-      particleMaterial.color.lerp(new THREE.Color(0xcfffff), intelligence * 0.035);
+      particleMaterial.color.copy(baseParticleColor).lerp(intelligenceParticleColor, intelligence);
+      core.material.color.copy(coreBaseColor).lerp(coreIntelligenceColor, intelligence);
       keyLight.intensity = (isMobile ? 12 : 20) + intelligence * (isMobile ? 4 : 9);
-      core.material.color.lerp(new THREE.Color(0xffffff), intelligence * 0.04);
 
-      // 90–100% EXPANSION: camera pulls back into the larger universe.
+      // 90–100% EXPANSION: the camera reveals that the world is larger than the UI.
       const expansion = THREE.MathUtils.smoothstep(p, 0.9, 1);
       camera.position.z = THREE.MathUtils.lerp(42, 57, expansion);
-      starMaterial.opacity = THREE.MathUtils.lerp(starMaterial.opacity, 0.24 + expansion * 0.2, 0.08);
+      starMaterial.opacity = THREE.MathUtils.lerp(0.24, 0.44, expansion);
 
-      // Scroll velocity becomes physical momentum instead of a hard snap.
+      // Scroll velocity becomes physical momentum rather than a snap.
       state.velocity = THREE.MathUtils.lerp(state.velocity, state.targetVelocity, 0.08);
       world.rotation.z += state.velocity * 0.0008;
       world.position.z = state.velocity * 0.6;
@@ -392,10 +386,8 @@
       state.pointerX = THREE.MathUtils.lerp(state.pointerX, state.targetPointerX, 0.045);
       state.pointerY = THREE.MathUtils.lerp(state.pointerY, state.targetPointerY, 0.045);
 
-      const ambientX = state.pointerX * 1.7;
-      const ambientY = -state.pointerY * 1.2;
-      camera.position.x = THREE.MathUtils.lerp(camera.position.x, ambientX, 0.035);
-      camera.position.y = THREE.MathUtils.lerp(camera.position.y, ambientY, 0.035);
+      camera.position.x = THREE.MathUtils.lerp(camera.position.x, state.pointerX * 1.7, 0.035);
+      camera.position.y = THREE.MathUtils.lerp(camera.position.y, -state.pointerY * 1.2, 0.035);
 
       stars.rotation.y += 0.00012;
       particles.rotation.y += 0.00018 + Math.abs(state.velocity) * 0.0005;
@@ -407,13 +399,13 @@
       requestAnimationFrame(render);
     }
 
-    // Respect reduced-motion users while keeping the interface fully usable.
     if (reducedMotion) {
       particleMaterial.opacity = 0.16;
       starMaterial.opacity = 0.1;
     }
 
-    // Initial refresh is deliberately AFTER #main becomes visible.
+    // The engine starts only after #main is visible, so ScrollTrigger gets real dimensions.
+    scrollTrigger.refresh();
     ScrollTrigger.refresh();
     render();
   };
