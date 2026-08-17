@@ -1,322 +1,228 @@
 /*
- * ANIM OS — HOMEPAGE 3D BACKGROUND ONLY
- * Visual layer only. script.js remains untouched.
- * Story: BLACK VOID -> STAR IGNITION -> LIGHT SPREAD
+ * ANIM OS — HOMEPAGE STAR BACKGROUND
+ * ONLY the homepage background. Existing UI + script.js are untouched.
+ * Story: BLACK VOID -> FIRST SPARK -> STAR -> LIGHT SPREAD
  */
 (() => {
   'use strict';
 
   function boot() {
-    if (!window.THREE || !window.gsap || !window.ScrollTrigger) return;
-    if (window.__animHomepageWorld) return;
+    if (window.__animHomepageStarWorld || !window.THREE) return;
 
     const canvas = document.getElementById('story-canvas');
     const main = document.getElementById('main');
     const hero = document.getElementById('profile');
     if (!canvas || !main || !hero) return;
 
-    window.__animHomepageWorld = true;
-    gsap.registerPlugin(ScrollTrigger);
+    window.__animHomepageStarWorld = true;
 
     const mobile = window.matchMedia('(max-width:700px)').matches;
-    const reduced = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* Kill the old decorative background layers. The homepage background is now
-       controlled by this one WebGL scene only. No UI is replaced. */
-    const css = document.createElement('style');
-    css.id = 'homepage-3d-background-style';
-    css.textContent = `
+    /* Remove every old decorative layer that could create the square/gradient look. */
+    const style = document.createElement('style');
+    style.textContent = `
       html, body { background:#000 !important; }
       body:before, body:after { display:none !important; }
-      #main { background:transparent !important; }
       .orb { display:none !important; }
+      #main { background:transparent !important; }
       #story-canvas {
         position:fixed !important;
         inset:0 !important;
         width:100vw !important;
         height:100vh !important;
-        z-index:0 !important;
         display:block !important;
+        visibility:visible !important;
         opacity:1 !important;
+        z-index:0 !important;
         pointer-events:none !important;
-        mix-blend-mode:normal !important;
         background:#000 !important;
+        mix-blend-mode:normal !important;
       }
-      #main { position:relative; z-index:1; }
-      .navbar { z-index:50; }
+      #main { position:relative !important; z-index:1 !important; }
+      .navbar { z-index:50 !important; }
       .container { position:relative; z-index:2; }
     `;
-    document.head.appendChild(css);
+    document.head.appendChild(style);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: false,
+      antialias: !mobile,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.6));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setClearColor(0x000000, 1);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    const camera = new THREE.PerspectiveCamera(
-      48,
-      innerWidth / innerHeight,
-      0.1,
-      500
-    );
-    camera.position.set(0, 0, 30);
-
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: !mobile,
-      alpha: false,
-      powerPreference: 'high-performance'
-    });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.25 : 1.7));
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.8;
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 0, 18);
 
     const world = new THREE.Group();
-    world.position.set(0, 0, -2);
+    world.position.z = -2;
     scene.add(world);
 
-    const clock = new THREE.Clock();
-    const state = {
-      progress: 0,
-      mouseX: 0,
-      mouseY: 0,
-      smoothMouseX: 0,
-      smoothMouseY: 0
-    };
+    const state = { scroll: 0, mx: 0, my: 0, sx: 0, sy: 0 };
 
-    /* -------------------- DUST / DISTANT STARS -------------------- */
-    const count = reduced ? 100 : mobile ? 280 : 850;
-    const positions = new Float32Array(count * 3);
-
-    for (let i = 0; i < count; i++) {
+    /* Distant space. These are invisible until the page starts moving. */
+    const starCount = reduced ? 80 : (mobile ? 220 : 700);
+    const positions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
       const j = i * 3;
-      const radius = 14 + Math.random() * 65;
+      const radius = 9 + Math.random() * 55;
       const angle = Math.random() * Math.PI * 2;
       positions[j] = Math.cos(angle) * radius;
-      positions[j + 1] = (Math.random() - 0.5) * 48;
-      positions[j + 2] = -10 - Math.random() * 130;
+      positions[j + 1] = (Math.random() - 0.5) * 38;
+      positions[j + 2] = -8 - Math.random() * 100;
     }
-
-    const starFieldGeometry = new THREE.BufferGeometry();
-    starFieldGeometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(positions, 3)
-    );
-
-    const starFieldMaterial = new THREE.PointsMaterial({
-      color: 0xcff8ff,
+    const dustGeometry = new THREE.BufferGeometry();
+    dustGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const dustMaterial = new THREE.PointsMaterial({
+      color: 0xdaf8ff,
       size: mobile ? 0.045 : 0.055,
       transparent: true,
       opacity: 0,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
+    const dust = new THREE.Points(dustGeometry, dustMaterial);
+    world.add(dust);
 
-    const starField = new THREE.Points(
-      starFieldGeometry,
-      starFieldMaterial
-    );
-    world.add(starField);
-
-    /* -------------------- HERO STAR -------------------- */
+    /* One actual 3D star — this is the only hero object. */
     const star = new THREE.Mesh(
-      new THREE.SphereGeometry(0.09, mobile ? 10 : 16, mobile ? 10 : 16),
-      new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0,
-        depthWrite: false
-      })
+      new THREE.SphereGeometry(0.075, mobile ? 10 : 18, mobile ? 10 : 18),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 })
     );
-    star.position.set(0, 1.5, -3);
+    star.position.set(0, 0, -4);
     world.add(star);
 
-    function glowTexture() {
-      const c = document.createElement('canvas');
-      c.width = c.height = 256;
-      const ctx = c.getContext('2d');
-      const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-      g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(0.035, 'rgba(225,250,255,.98)');
-      g.addColorStop(0.12, 'rgba(100,220,255,.62)');
-      g.addColorStop(0.32, 'rgba(40,160,255,.18)');
-      g.addColorStop(0.7, 'rgba(20,100,180,.035)');
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 256, 256);
-      return new THREE.CanvasTexture(c);
-    }
+    /* Soft glow texture around the star. */
+    const glowCanvas = document.createElement('canvas');
+    glowCanvas.width = glowCanvas.height = 256;
+    const glowCtx = glowCanvas.getContext('2d');
+    const gradient = glowCtx.createRadialGradient(128,128,0,128,128,128);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.04, 'rgba(190,245,255,.95)');
+    gradient.addColorStop(0.13, 'rgba(70,200,255,.5)');
+    gradient.addColorStop(0.35, 'rgba(50,150,255,.12)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    glowCtx.fillStyle = gradient;
+    glowCtx.fillRect(0,0,256,256);
 
-    const starGlow = new THREE.Sprite(
-      new THREE.SpriteMaterial({
-        map: glowTexture(),
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
-      })
-    );
-    starGlow.position.copy(star.position);
-    starGlow.scale.set(1, 1, 1);
-    world.add(starGlow);
-
-    /* A soft 3D halo around the star. This is deliberately subtle, not a neon blob. */
-    const halo = new THREE.Mesh(
-      new THREE.SphereGeometry(0.7, 20, 20),
-      new THREE.MeshBasicMaterial({
-        color: 0x7edfff,
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
-      })
-    );
-    halo.position.copy(star.position);
-    world.add(halo);
-
-    /* -------------------- LIGHT THAT ACTUALLY ILLUMINATES THE WORLD -------------------- */
-    const starLight = new THREE.PointLight(0xbdefff, 0, 75, 2);
-    starLight.position.copy(star.position);
-    scene.add(starLight);
-
-    /* Very thin atmospheric beam. It grows only after the star appears. */
-    const beamMaterial = new THREE.MeshBasicMaterial({
-      color: 0xbdefff,
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(glowCanvas),
       transparent: true,
       opacity: 0,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide
-    });
+      blending: THREE.AdditiveBlending
+    }));
+    glow.position.copy(star.position);
+    glow.scale.setScalar(0.1);
+    world.add(glow);
+
+    /* A very thin vertical beam — no rectangle, no glass plane. */
     const beam = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.16, 34),
-      beamMaterial
+      new THREE.PlaneGeometry(0.08, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0xbdf5ff,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide
+      })
     );
-    beam.position.set(0, -15, -2.5);
+    beam.position.set(0, -16, -3.5);
     beam.scale.y = 0.001;
     world.add(beam);
 
-    const beamWideMaterial = new THREE.MeshBasicMaterial({
-      color: 0x4fcfff,
-      transparent: true,
-      opacity: 0,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide
-    });
-    const beamWide = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.5, 34),
-      beamWideMaterial
-    );
-    beamWide.position.copy(beam.position);
-    beamWide.scale.y = 0.001;
-    world.add(beamWide);
+    const light = new THREE.PointLight(0xbdefff, 0, 55, 2);
+    light.position.copy(star.position);
+    scene.add(light);
 
-    /* -------------------- SCROLL = STORY --------------------
-       Only the homepage hero controls the background.
-       0% = absolute black.
-       25% = first spark.
-       50% = star fully alive.
-       100% = atmosphere gently illuminated.
-    */
-    ScrollTrigger.create({
-      trigger: hero,
-      start: 'top top',
-      end: 'bottom top',
-      scrub: 1.4,
-      invalidateOnRefresh: true,
-      onUpdate(self) {
-        state.progress = self.progress;
-      }
-    });
-
-    addEventListener('pointermove', (event) => {
-      state.mouseX = event.clientX / innerWidth - 0.5;
-      state.mouseY = event.clientY / innerHeight - 0.5;
-    }, { passive: true });
-
-    addEventListener('resize', () => {
-      camera.aspect = innerWidth / innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1.25 : 1.7));
-      renderer.setSize(innerWidth, innerHeight);
-      ScrollTrigger.refresh();
-    }, { passive: true });
-
-    function render() {
-      requestAnimationFrame(render);
-
-      const time = clock.getElapsedTime();
-      const p = state.progress;
-
-      /* Smooth stages. Nothing jumps on/off. */
-      const spark = THREE.MathUtils.smoothstep(p, 0.08, 0.30);
-      const fullStar = THREE.MathUtils.smoothstep(p, 0.20, 0.48);
-      const atmosphere = THREE.MathUtils.smoothstep(p, 0.28, 0.92);
-      const beamProgress = THREE.MathUtils.smoothstep(p, 0.28, 0.72);
-
-      /* The entire background begins as black and slowly becomes deep blue-black. */
-      const background = new THREE.Color(0x000000).lerp(
-        new THREE.Color(0x07131d),
-        atmosphere * 0.82
-      );
-      scene.background.copy(background);
-
-      /* Star: tiny spark -> physical-looking glowing point -> breathing star. */
-      star.material.opacity = spark;
-      const starScale = 0.45 + fullStar * 2.15 + Math.sin(time * 2.2) * 0.025 * fullStar;
-      star.scale.setScalar(starScale);
-
-      starGlow.material.opacity = spark * 0.48;
-      const glowScale = 0.4 + fullStar * (mobile ? 3.1 : 4.8);
-      starGlow.scale.setScalar(glowScale);
-
-      halo.material.opacity = fullStar * 0.055;
-      halo.scale.setScalar(0.7 + fullStar * 1.8);
-
-      /* The light is what makes the surrounding 3D space feel illuminated. */
-      starLight.intensity = fullStar * (mobile ? 3.2 : 7.5);
-      starLight.distance = 30 + atmosphere * 48;
-
-      /* Stars emerge gradually instead of covering the homepage immediately. */
-      starFieldMaterial.opacity = 0.006 + atmosphere * 0.065;
-      starField.rotation.y = time * 0.0018;
-      starField.rotation.x = Math.sin(time * 0.12) * 0.015;
-
-      /* A restrained beam connects the star to the page as the user continues upward. */
-      beam.scale.y = Math.max(0.001, beamProgress);
-      beamWide.scale.y = Math.max(0.001, beamProgress);
-      beamMaterial.opacity = beamProgress * 0.36;
-      beamWideMaterial.opacity = beamProgress * 0.055;
-      beam.position.y = -15 + beamProgress * 16.5;
-      beamWide.position.y = beam.position.y;
-
-      /* Gentle 3D parallax — background moves, interface does not. */
-      state.smoothMouseX = THREE.MathUtils.lerp(state.smoothMouseX, state.mouseX, 0.035);
-      state.smoothMouseY = THREE.MathUtils.lerp(state.smoothMouseY, state.mouseY, 0.035);
-      camera.position.x = THREE.MathUtils.lerp(
-        camera.position.x,
-        state.smoothMouseX * 1.0,
-        0.025
-      );
-      camera.position.y = THREE.MathUtils.lerp(
-        camera.position.y,
-        -state.smoothMouseY * 0.65,
-        0.025
-      );
-      camera.lookAt(0, 0, -3);
-
-      /* Keep the star alive even when scrolling stops. */
-      starGlow.rotation.z = time * 0.035;
-      halo.rotation.y = time * 0.12;
-
-      renderer.render(scene, camera);
+    /*
+     * IMPORTANT: use the actual page scroll position rather than relying on
+     * ScrollTrigger measuring a changing hero height. This makes the effect
+     * reliable on mobile and desktop.
+     * The first ~1.5 viewport heights are the homepage story.
+     */
+    function updateScroll() {
+      const heroTop = hero.getBoundingClientRect().top + window.scrollY;
+      const distance = Math.max(window.innerHeight * 1.35, hero.offsetHeight * 0.75);
+      const raw = (window.scrollY - heroTop) / distance;
+      state.scroll = Math.max(0, Math.min(1, raw));
     }
 
-    ScrollTrigger.refresh();
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.25 : 1.6));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      updateScroll();
+    }, { passive: true });
+
+    window.addEventListener('pointermove', (e) => {
+      state.mx = e.clientX / window.innerWidth - 0.5;
+      state.my = e.clientY / window.innerHeight - 0.5;
+    }, { passive: true });
+
+    updateScroll();
+
+    const clock = new THREE.Clock();
+    function render() {
+      requestAnimationFrame(render);
+      const t = clock.getElapsedTime();
+      const p = state.scroll;
+
+      /* Black at the start. Only a tiny amount of blue-black enters later. */
+      const darkness = THREE.MathUtils.smoothstep(p, 0.25, 0.95);
+      scene.background.setRGB(
+        0.001 + darkness * 0.004,
+        0.001 + darkness * 0.010,
+        0.002 + darkness * 0.016
+      );
+
+      /* The star is born, then grows and breathes. */
+      const birth = THREE.MathUtils.smoothstep(p, 0.03, 0.22);
+      const starLife = THREE.MathUtils.smoothstep(p, 0.13, 0.42);
+      star.material.opacity = birth;
+      const size = 0.35 + starLife * 2.2 + Math.sin(t * 2.4) * 0.025;
+      star.scale.setScalar(size);
+
+      glow.material.opacity = starLife * 0.5;
+      glow.scale.setScalar(0.15 + starLife * (mobile ? 2.8 : 4.2));
+
+      light.intensity = starLife * (mobile ? 2.8 : 6.5);
+      light.distance = 22 + darkness * 30;
+
+      /* The light beam slowly fills in after the star has appeared. */
+      const beamLife = THREE.MathUtils.smoothstep(p, 0.30, 0.78);
+      beam.scale.y = Math.max(0.001, beamLife);
+      beam.material.opacity = beamLife * 0.32;
+      beam.position.y = -16 + beamLife * 16;
+
+      /* Space wakes up only after the star is born. */
+      dust.material.opacity = 0.003 + darkness * 0.075;
+      dust.rotation.y = t * 0.0015;
+      dust.rotation.x = Math.sin(t * 0.1) * 0.012;
+
+      /* Subtle parallax gives the background genuine depth. */
+      state.sx += (state.mx - state.sx) * 0.025;
+      state.sy += (state.my - state.sy) * 0.025;
+      camera.position.x += (state.sx * 0.8 - camera.position.x) * 0.025;
+      camera.position.y += (-state.sy * 0.55 - camera.position.y) * 0.025;
+      camera.lookAt(0, 0, -4);
+
+      glow.material.rotation = t * 0.025;
+      renderer.render(scene, camera);
+    }
     render();
   }
 
-  /* script.js starts this after #main becomes visible. */
   window.initNarrativeWorld = boot;
 })();
