@@ -1,106 +1,162 @@
-/* ANIM OS — KNOWLEDGE VAULT / CINEMATIC LIBRARY
- * Scroll -> camera travels through the room -> hero book flies from its shelf,
- * opens -> DOM content emerges from its pages -> closes -> returns to shelf.
+/* ANIM OS — KNOWLEDGE VAULT
+ * Black cinematic library. Scroll drives: book flies out -> opens wide -> DOM panel emerges -> closes -> returns.
  */
 (() => {
   'use strict';
-  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
-  const smooth=v=>v*v*(3-2*v);
-  const remap=(v,a,b)=>clamp((v-a)/(b-a));
+  const T = window.THREE;
+  const canvas = document.getElementById('story-canvas');
+  const main = document.getElementById('main');
+  if (!T || !canvas || !main || window.__animKnowledgeVault) return;
+  window.__animKnowledgeVault = true;
 
-  class CinematicBook {
-    constructor(T,cfg){
-      this.T=T;this.id=cfg.id;this.base=cfg.position.clone();this.group=new T.Group();
-      this.group.position.copy(this.base);this.group.rotation.y=Math.PI;this.restRotation=Math.PI;
-      const cover=new T.MeshStandardMaterial({color:cfg.color,roughness:.3,metalness:.38});
-      const paper=new T.MeshStandardMaterial({color:0xded7c7,roughness:.72,metalness:.02,side:T.DoubleSide});
-      const silver=new T.MeshStandardMaterial({color:0xbfc4c9,roughness:.2,metalness:.85});
-      this.back=new T.Mesh(new T.BoxGeometry(2.05,3,.16),cover);this.back.position.z=.02;this.group.add(this.back);
-      this.pageBlock=new T.Group();this.pageBlock.position.z=.16;this.group.add(this.pageBlock);this.pages=[];
-      for(let i=0;i<13;i++){
-        const page=new T.Mesh(new T.PlaneGeometry(1.82,2.72),paper);
-        page.position.z=.02+i*.006;page.rotation.y=-.035+i*.005;this.pageBlock.add(page);this.pages.push(page);
-      }
-      this.frontPivot=new T.Group();this.frontPivot.position.set(-1.01,0,.28);this.group.add(this.frontPivot);
-      this.front=new T.Mesh(new T.BoxGeometry(2.05,3,.16),cover);this.front.position.x=1.025;this.frontPivot.add(this.front);
-      this.spine=new T.Mesh(new T.BoxGeometry(.16,3.06,.27),silver);this.spine.position.set(-.94,0,.13);this.group.add(this.spine);
-      const plate=new T.Mesh(new T.BoxGeometry(1.05,.06,.035),silver);plate.position.set(1.02,-.25,.36);this.frontPivot.add(plate);
-      this.anchor=new T.Object3D();this.anchor.position.set(.12,.12,.48);this.group.add(this.anchor);
-      this.label=this.makeLabel(T,cfg.title);this.label.position.set(0,-1.78,.3);this.group.add(this.label);
+  const clamp = (v,a=0,b=1) => Math.max(a,Math.min(b,v));
+  const ease = v => v < .5 ? 4*v*v*v : 1-Math.pow(-2*v+2,3)/2;
+  const range = (v,a,b) => ease(clamp((v-a)/(b-a)));
+
+  const style = document.createElement('style');
+  style.textContent = `
+    html,body,#main{background:#000!important}
+    #story-canvas{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:0!important;background:#000!important}
+    #main{min-height:720vh!important;background:transparent!important}
+    #main .container{position:relative!important;height:720vh!important;z-index:3!important;pointer-events:none!important;padding:0!important;margin:0!important;max-width:none!important}
+    #main .container>section.vault-ui{position:fixed!important;left:50%!important;top:50%!important;width:min(760px,calc(100vw - 24px))!important;max-height:76vh!important;overflow:auto!important;z-index:20!important;opacity:0!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(.35)!important;transform-origin:center!important;will-change:transform,opacity,filter!important}
+    #main .container>footer{position:fixed!important;left:50%;bottom:14px;transform:translateX(-50%);z-index:8;pointer-events:none}
+    .vault-title{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:8;color:rgba(255,255,255,.42);font:600 9px/1 Arial,sans-serif;letter-spacing:.45em;white-space:nowrap;pointer-events:none}
+    .vault-hint{position:fixed;right:20px;bottom:26px;z-index:8;color:rgba(255,255,255,.28);font:600 8px/1 Arial,sans-serif;letter-spacing:.28em;writing-mode:vertical-rl;pointer-events:none}
+    @media(max-width:700px){#main,.#main .container{min-height:900vh!important;height:900vh!important}.vault-title{font-size:7px;top:15px}.vault-hint{right:8px}}
+  `;
+  document.head.appendChild(style);
+  ['profile','projects','contact','ai-section'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('vault-ui')});
+  const title=document.createElement('div');title.className='vault-title';title.textContent='ANIM OS  •  KNOWLEDGE VAULT';document.body.appendChild(title);
+  const hint=document.createElement('div');hint.className='vault-hint';hint.textContent='SCROLL TO EXPLORE';document.body.appendChild(hint);
+
+  const mobile = matchMedia('(max-width:700px)').matches;
+  const renderer = new T.WebGLRenderer({canvas,antialias:!mobile,alpha:false,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,mobile?1.2:1.6));
+  renderer.setSize(innerWidth,innerHeight); renderer.outputColorSpace=T.SRGBColorSpace;
+  renderer.toneMapping=T.ACESFilmicToneMapping; renderer.toneMappingExposure=1.08;
+
+  const scene=new T.Scene(); scene.background=new T.Color(0x000000); scene.fog=new T.Fog(0x000000,18,44);
+  const camera=new T.PerspectiveCamera(48,innerWidth/innerHeight,.1,120);
+  const world=new T.Group();scene.add(world);
+  const shelf=new T.Group();shelf.position.set(0,0,-15);world.add(shelf);
+
+  const wood=new T.MeshStandardMaterial({color:0x101318,roughness:.62,metalness:.18});
+  const shelfEdge=new T.MeshStandardMaterial({color:0x4c5560,roughness:.28,metalness:.7});
+  const black=new T.MeshStandardMaterial({color:0x020304,roughness:.9,metalness:.05});
+
+  // Nearly black room: the shelves and book edges are visible only through controlled light.
+  const floor=new T.Mesh(new T.PlaneGeometry(48,64),black);floor.rotation.x=-Math.PI/2;floor.position.set(0,-3,-8);world.add(floor);
+  const wall=new T.Mesh(new T.PlaneGeometry(48,28),black);wall.position.set(0,6,-25);world.add(wall);
+  for(const x of [-13,13]){const p=new T.Mesh(new T.BoxGeometry(.45,16,1),wood);p.position.set(x,4,-15);shelf.add(p)}
+  for(let r=0;r<7;r++){
+    const y=-2.5+r*2.05;
+    const plank=new T.Mesh(new T.BoxGeometry(26,.25,1.15),wood);plank.position.set(0,y,0);shelf.add(plank);
+    const edge=new T.Mesh(new T.BoxGeometry(26,.045,.08),shelfEdge);edge.position.set(0,y+.16,.57);shelf.add(edge);
+  }
+
+  // Filler books: muted so the five hero colors dominate.
+  const fillerGeo=new T.BoxGeometry(.32,1.55,.72);
+  const fillerMat=new T.MeshStandardMaterial({color:0x20252b,roughness:.65,metalness:.2});
+  const filler=new T.InstancedMesh(fillerGeo,fillerMat,mobile?130:250);const dummy=new T.Object3D();
+  for(let i=0;i<(mobile?130:250);i++){
+    const row=i%7, col=Math.floor(i/7), cols=Math.ceil((mobile?130:250)/7);
+    dummy.position.set(-10.8+(col/(cols-1))*21.6+(Math.random()-.5)*.12,-1.7+row*2.05,.02);
+    dummy.rotation.z=(Math.random()-.5)*.045;dummy.scale.set(.7+Math.random()*.7,.7+Math.random()*.55,.8+Math.random()*.3);dummy.updateMatrix();filler.setMatrixAt(i,dummy.matrix);
+  }
+  filler.instanceMatrix.needsUpdate=true;shelf.add(filler);
+
+  // Lighting is deliberately tight: black room, bright colored books.
+  scene.add(new T.HemisphereLight(0x536070,0x000000,.42));
+  const key=new T.PointLight(0xffffff,2.2,30,1.8);key.position.set(0,4,-8);world.add(key);
+  const rim=new T.PointLight(0x6c8cff,1.4,22,2);rim.position.set(-9,2,-10);world.add(rim);
+  const dustCount=mobile?100:240;const dustPos=new Float32Array(dustCount*3);
+  for(let i=0;i<dustCount;i++){dustPos[i*3]=(Math.random()-.5)*28;dustPos[i*3+1]=-2+Math.random()*12;dustPos[i*3+2]=1-Math.random()*30}
+  const dg=new T.BufferGeometry();dg.setAttribute('position',new T.BufferAttribute(dustPos,3));world.add(new T.Points(dg,new T.PointsMaterial({color:0x9aa6b5,size:.045,transparent:true,opacity:.25,depthWrite:false})));
+
+  class HeroBook{
+    constructor(cfg){
+      this.base=cfg.pos.clone();this.group=new T.Group();this.group.position.copy(this.base);this.group.rotation.y=0;shelf.add(this.group);
+      const cover=new T.MeshStandardMaterial({color:cfg.color,roughness:.24,metalness:.48,emissive:cfg.color,emissiveIntensity:.08});
+      const paper=new T.MeshStandardMaterial({color:0xf2eee4,roughness:.72,side:T.DoubleSide});
+      const silver=new T.MeshStandardMaterial({color:0xbcc6d0,roughness:.18,metalness:.9});
+      this.back=new T.Mesh(new T.BoxGeometry(2.0,3,.16),cover);this.group.add(this.back);
+      this.pages=new T.Group();this.pages.position.z=.16;this.group.add(this.pages);
+      for(let i=0;i<15;i++){const p=new T.Mesh(new T.PlaneGeometry(1.84,2.78),paper);p.position.z=i*.007;p.rotation.y=(i-7)*.002;this.pages.add(p)}
+      // Front cover hinges visibly around the spine.
+      this.frontPivot=new T.Group();this.frontPivot.position.set(-1,0,.28);this.group.add(this.frontPivot);
+      this.front=new T.Mesh(new T.BoxGeometry(2,3,.16),cover);this.front.position.x=1;this.frontPivot.add(this.front);
+      this.spine=new T.Mesh(new T.BoxGeometry(.16,3.08,.28),silver);this.spine.position.set(-.93,0,.12);this.group.add(this.spine);
+      const band=new T.Mesh(new T.BoxGeometry(1.1,.055,.04),silver);band.position.set(1,-.28,.37);this.frontPivot.add(band);
+      this.anchor=new T.Object3D();this.anchor.position.set(.05,.12,.55);this.group.add(this.anchor);
+      this.glow=new T.PointLight(cfg.color,0,7,2);this.glow.position.set(0,0,1);this.group.add(this.glow);
     }
-    makeLabel(T,text){
-      const c=document.createElement('canvas');c.width=512;c.height=128;const ctx=c.getContext('2d');
-      ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#0b0b0b';ctx.roundRect(12,12,488,104,18);ctx.fill();
-      ctx.strokeStyle='#8f9398';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#f1eee6';ctx.font='700 31px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,256,64);
-      const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;
-      return new T.Mesh(new T.PlaneGeometry(1.65,.41),new T.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));
-    }
-    update(f){
-      const extract=smooth(f.extract),open=smooth(f.open),settle=smooth(f.settle),returnP=smooth(f.returnP);
-      const forward=extract*(1-returnP);
-      this.group.position.x=this.base.x+Math.sin(extract*Math.PI)*.42-returnP*.12;
-      this.group.position.y=this.base.y+Math.sin(extract*Math.PI)*.26;
-      this.group.position.z=this.base.z+forward*6.8;
-      this.group.scale.setScalar(1+settle*.16);
-      this.group.rotation.y=this.restRotation+extract*Math.PI*.86;
-      this.group.rotation.x=Math.sin(extract*Math.PI)*-.09;this.group.rotation.z=Math.sin(extract*Math.PI)*.035;
-      this.frontPivot.rotation.y=-open*Math.PI*.92;
-      this.pages.forEach((page,i)=>{const t=i/(this.pages.length-1);page.rotation.y=(-.04+t*.08)*(1-open)+(t-.5)*open*.16;page.position.x=(t-.5)*open*.22;page.position.z=.02+i*.006+open*.05*Math.sin(t*Math.PI)});
-      this.anchor.visible=open>.02;
+    update(extract,open,returning){
+      const e=ease(extract),o=ease(open),r=ease(returning);
+      // Fly out toward viewer, then back exactly to the shelf.
+      this.group.position.x=this.base.x+Math.sin(e*Math.PI)*.28;
+      this.group.position.y=this.base.y+Math.sin(e*Math.PI)*.18;
+      this.group.position.z=this.base.z+e*(1-r)*7.2;
+      this.group.scale.setScalar(1+e*.32*(1-r));
+      this.group.rotation.y=e*.10;
+      this.group.rotation.x=Math.sin(e*Math.PI)*-.06;
+      // VERY visible opening: cover goes past 140 degrees and pages fan apart.
+      this.frontPivot.rotation.y=-o*2.55;
+      this.pages.children.forEach((p,i)=>{const t=i/(this.pages.children.length-1);p.position.x=(t-.5)*o*.34;p.rotation.y=(t-.5)*o*.22;p.position.z=.01+i*.006+Math.sin(t*Math.PI)*o*.13});
+      this.anchor.visible=o>.06;this.glow.intensity=o*1.8;
     }
   }
 
-  class LibraryEngine {
-    constructor(){
-      this.T=window.THREE;this.canvas=document.getElementById('story-canvas');this.main=document.getElementById('main');
-      this.mobile=matchMedia('(max-width:700px)').matches;this.p=0;this.targetP=0;this.books=[];this.sections={};this.clock=new this.T.Clock();
-      this.tmp=new this.T.Vector3();this.tmp2=new this.T.Vector3();
-    }
-    init(){
-      if(!this.T||!this.canvas||!this.main||window.__animKnowledgeVault)return;window.__animKnowledgeVault=this;
-      this.injectStageCSS();this.setupRenderer();this.setupScene();this.setupLibrary();this.setupBooks();this.setupCamera();this.setupScroll();this.setupResize();this.render();
-    }
-    injectStageCSS(){
-      const s=document.createElement('style');s.id='anim-vault-cinematic-css';s.textContent=`
-        html,body{background:#090806!important}#main{background:transparent!important;min-height:760vh!important}
-        #story-canvas{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:0!important;display:block!important;background:#090806!important}
-        #main .container{position:relative!important;width:100%!important;max-width:none!important;height:760vh!important;padding:0!important;margin:0!important;z-index:3!important;pointer-events:none!important}
-        #main .container>section.vault-ui{position:fixed!important;left:50%!important;top:50%!important;width:min(760px,calc(100vw - 32px))!important;max-height:78vh!important;overflow:auto!important;margin:0!important;z-index:12!important;pointer-events:none;opacity:0;transform:translate3d(-50%,-50%,0) scale(.78);transform-origin:center!important;will-change:transform,opacity,filter!important}
-        #main .container>section.vault-ui::-webkit-scrollbar{width:3px}#main .container>footer{position:fixed!important;left:50%;bottom:16px;transform:translateX(-50%);z-index:5;pointer-events:none}
-        .vault-cinematic-caption{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:8;letter-spacing:.32em;font-size:9px;color:rgba(245,241,231,.38);text-transform:uppercase;pointer-events:none;white-space:nowrap}
-        .vault-scroll-hint{position:fixed;right:26px;bottom:28px;z-index:8;writing-mode:vertical-rl;letter-spacing:.24em;font-size:8px;color:rgba(255,255,255,.3);pointer-events:none}
-        @media(max-width:700px){#main .container{height:900vh!important}#main .container>section.vault-ui{width:calc(100vw - 20px)!important;max-height:74vh!important}.vault-cinematic-caption{bottom:18px;font-size:7px}.vault-scroll-hint{right:10px;bottom:18px}}
-      `;document.head.appendChild(s);
-      ['profile','projects','contact','ai-section'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.add('vault-ui');this.sections[id]=el}});
-      const caption=document.createElement('div');caption.className='vault-cinematic-caption';caption.textContent='ANIM OS  •  KNOWLEDGE VAULT';document.body.appendChild(caption);
-      const hint=document.createElement('div');hint.className='vault-scroll-hint';hint.textContent='SCROLL TO EXPLORE';document.body.appendChild(hint);
-    }
-    setupRenderer(){const T=this.T;this.renderer=new T.WebGLRenderer({canvas:this.canvas,antialias:!this.mobile,alpha:false,powerPreference:'high-performance'});this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,this.mobile?1.25:1.65));this.renderer.setSize(innerWidth,innerHeight);this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.15}
-    setupScene(){const T=this.T;this.scene=new T.Scene();this.scene.background=new T.Color(0x090806);this.scene.fog=new T.Fog(0x090806,18,46);this.world=new T.Group();this.scene.add(this.world);this.camera=new T.PerspectiveCamera(46,innerWidth/innerHeight,.1,140);this.camera.position.set(0,2.1,25)}
-    setupLibrary(){
-      const T=this.T;const wood=new T.MeshStandardMaterial({color:0x211812,roughness:.54,metalness:.12});const woodDark=new T.MeshStandardMaterial({color:0x100c09,roughness:.7,metalness:.06});const brass=new T.MeshStandardMaterial({color:0x77705f,roughness:.3,metalness:.72});
-      const floor=new T.Mesh(new T.PlaneGeometry(52,70),woodDark);floor.rotation.x=-Math.PI/2;floor.position.set(0,-2.5,-8);this.world.add(floor);
-      const back=new T.Mesh(new T.PlaneGeometry(48,28),woodDark);back.position.set(0,8,-25);this.world.add(back);
-      const ceiling=new T.Mesh(new T.PlaneGeometry(52,70),woodDark);ceiling.rotation.x=Math.PI/2;ceiling.position.set(0,12,-8);this.world.add(ceiling);
-      for(const x of [-13,-9,-5,5,9,13]){const col=new T.Mesh(new T.BoxGeometry(.35,15,.8),wood);col.position.set(x,4.5,-18);this.world.add(col)}
-      for(const z of [-7,-13,-19,-25]){const beam=new T.Mesh(new T.BoxGeometry(28,.28,.5),wood);beam.position.set(0,10,z);this.world.add(beam)}
-      this.shelf=new T.Group();this.shelf.position.set(0,.6,-15);this.world.add(this.shelf);const shelfW=this.mobile?15:23;
-      for(let row=0;row<7;row++){const plank=new T.Mesh(new T.BoxGeometry(shelfW,.28,1.05),wood);plank.position.y=-3+row*2.05;this.shelf.add(plank);const trim=new T.Mesh(new T.BoxGeometry(shelfW+.03,.035,.06),brass);trim.position.set(0,plank.position.y+.16,.54);this.shelf.add(trim)}
-      for(const x of [-shelfW/2,shelfW/2]){const post=new T.Mesh(new T.BoxGeometry(.42,14.8,1.15),wood);post.position.set(x,3,0);this.shelf.add(post)}
-      this.addFillerBooks();this.addLighting();this.addAtmosphere();
-    }
-    addFillerBooks(){const T=this.T;const count=this.mobile?130:250;const geo=new T.BoxGeometry(.34,1.55,.72);const mat=new T.MeshStandardMaterial({color:0x51463b,roughness:.52,metalness:.2});const mesh=new T.InstancedMesh(geo,mat,count);const d=new T.Object3D();for(let i=0;i<count;i++){const row=i%7,col=Math.floor(i/7),perRow=Math.ceil(count/7),x=-10.8+(col/(perRow-1))*21.6,y=-2.05+row*2.05;d.position.set(x+(Math.random()-.5)*.12,y,-.02);d.rotation.z=(Math.random()-.5)*.055;d.scale.set(.75+Math.random()*.8,.72+Math.random()*.58,.78+Math.random()*.38);d.updateMatrix();mesh.setMatrixAt(i,d.matrix)}mesh.instanceMatrix.needsUpdate=true;this.shelf.add(mesh)}
-    addLighting(){const T=this.T;this.scene.add(new T.HemisphereLight(0x8e8575,0x090705,.7));this.key=new T.PointLight(0xffd9a1,2.4,28,1.8);this.key.position.set(0,6,-9);this.world.add(this.key);const left=new T.PointLight(0xb8c8e8,1.15,24,2);left.position.set(-9,3,-6);this.world.add(left);const right=new T.PointLight(0xe9d5ad,1,24,2);right.position.set(9,4,-12);this.world.add(right);for(const x of [-8,-4,0,4,8]){const lamp=new T.PointLight(0xffd8a0,.65,6,2);lamp.position.set(x,3.9,-14);this.world.add(lamp)}}
-    addAtmosphere(){const T=this.T,count=this.mobile?160:360,pos=new Float32Array(count*3);for(let i=0;i<count;i++){pos[i*3]=(Math.random()-.5)*28;pos[i*3+1]=-2+Math.random()*13;pos[i*3+2]=2-Math.random()*32}const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));this.dust=new T.Points(g,new T.PointsMaterial({color:0xe5d6bd,size:this.mobile?.045:.055,transparent:true,opacity:.28,depthWrite:false}));this.world.add(this.dust)}
-    setupBooks(){const T=this.T;const cfg=[{id:'profile',title:'PROFILE',color:0x20262c,position:new T.Vector3(-5.1,.83,.38)},{id:'projects',title:'PROJECTS',color:0x2b211a,position:new T.Vector3(-1.7,2.88,.38)},{id:'contact',title:'CONTACT',color:0x1e2924,position:new T.Vector3(2,.83,.38)},{id:'ai-section',title:'AI ANIM',color:0x25212d,position:new T.Vector3(5.3,4.93,.38)}];cfg.forEach(c=>{const b=new CinematicBook(T,c);this.books.push(b);this.shelf.add(b.group)})}
-    setupCamera(){const T=this.T;this.path=new T.CatmullRomCurve3([new T.Vector3(0,2,25),new T.Vector3(-2,2.2,18),new T.Vector3(2,2.1,10),new T.Vector3(-2,2,4.5),new T.Vector3(-5,2.1,1.8),new T.Vector3(-1.7,4,1.8),new T.Vector3(2,2.1,2),new T.Vector3(5.3,5.5,2),new T.Vector3(0,3.2,11)]);this.targets=[new T.Vector3(0,1.8,-14),new T.Vector3(-5.1,1.3,-13.5),new T.Vector3(-1.7,3.35,-13.5),new T.Vector3(2,1.3,-13.5),new T.Vector3(5.3,5.4,-13.5)]}
-    setupScroll(){const update=()=>{const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);this.targetP=clamp(scrollY/max)};addEventListener('scroll',update,{passive:true});update();if(window.ScrollTrigger){window.gsap?.registerPlugin(window.ScrollTrigger);this.trigger=window.ScrollTrigger.create({trigger:document.body,start:'top top',end:()=>document.documentElement.scrollHeight-innerHeight,scrub:true,onUpdate:s=>this.targetP=s.progress})}}
-    setupResize(){addEventListener('resize',()=>{this.mobile=matchMedia('(max-width:700px)').matches;this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,this.mobile?1.25:1.65));this.renderer.setSize(innerWidth,innerHeight);window.ScrollTrigger?.refresh()},{passive:true})}
-    bookFocus(i,local){const extract=remap(local,.03,.22),open=remap(local,.22,.43),hold=remap(local,.43,.68),close=remap(local,.68,.82),returnP=remap(local,.82,1);this.books[i].update({extract,open:Math.max(open,hold),settle:hold,returnP:Math.max(close,returnP)});return{extract,open,hold,close,returnP}}
-    projectAnchor(book){if(!book.anchor.visible)return null;book.anchor.getWorldPosition(this.tmp2);this.tmp2.project(this.camera);return{x:(this.tmp2.x*.5+.5)*innerWidth,y:(-.5*this.tmp2.y+.5)*innerHeight}}
-    updatePopup(active,local){const ids=['profile','projects','contact','ai-section'];ids.forEach((id,i)=>{const el=this.sections[id];if(!el)return;const is=i===active;let opacity=0,scale=.78,blur=13;if(is){const enter=smooth(remap(local,.34,.48)),exit=smooth(remap(local,.73,.86));opacity=enter*(1-exit);scale=.78+enter*.22;blur=13*(1-enter);const anchor=this.projectAnchor(this.books[i]);if(anchor){const dx=(anchor.x-innerWidth/2)*(1-enter),dy=(anchor.y-innerHeight/2)*(1-enter);el.style.transform=`translate3d(calc(-50% + ${dx}px),calc(-50% + ${dy}px),0) scale(${scale})`}else el.style.transform=`translate3d(-50%,-50%,0) scale(${scale})`;el.style.filter=`blur(${blur}px)`;el.style.pointerEvents=opacity>.65?'auto':'none'}else{el.style.opacity='0';el.style.filter='blur(13px)';el.style.pointerEvents='none';el.style.transform='translate3d(-50%,-50%,0) scale(.76)'}el.style.opacity=opacity})}
-    update(){this.p+=(this.targetP-this.p)*.075;const p=this.p,scaled=p*4,active=Math.min(3,Math.floor(scaled)),local=scaled-active;const cp=this.path.getPointAt(clamp(p));this.camera.position.lerp(cp,.075);const targetIndex=Math.min(4,Math.floor(scaled+.55));this.tmp.lerp(this.targets[targetIndex],.09);this.camera.lookAt(this.tmp);for(let i=0;i<this.books.length;i++){const d=Math.abs(i-scaled);this.bookFocus(i,clamp(1-d))}this.updatePopup(active,local);this.dust.rotation.y+=.00012;this.key.intensity=2.25+Math.sin(this.clock.elapsedTime*.45)*.18;this.camera.fov=46-remap(local,.22,.58)*5;this.camera.updateProjectionMatrix()}
-    render(){requestAnimationFrame(()=>this.render());this.update();this.renderer.render(this.scene,this.camera)}
+  // Exact requested hero palette: BLUE, GREEN, RED, YELLOW, BLUE.
+  const configs=[
+    {id:'profile',pos:new T.Vector3(-6.8,-1.55,.4),color:0x1687ff},
+    {id:'projects',pos:new T.Vector3(-3.4,.5,.4),color:0x20c878},
+    {id:'contact',pos:new T.Vector3(0,-1.55,.4),color:0xff3038},
+    {id:'ai-section',pos:new T.Vector3(3.4,.5,.4),color:0xffd21c},
+    {id:'future',pos:new T.Vector3(6.8,-1.55,.4),color:0x1687ff}
+  ];
+  const books=configs.map(c=>new HeroBook(c));
+
+  // Camera physically moves through the black library.
+  const cameraPath=new T.CatmullRomCurve3([
+    new T.Vector3(0,2.1,25),new T.Vector3(-2,2.0,17),new T.Vector3(2,1.8,9),
+    new T.Vector3(-2,1.7,3.5),new T.Vector3(-6,1.5,1.0),new T.Vector3(-2,.7,1.0),
+    new T.Vector3(2,1.5,1.0),new T.Vector3(6,2.2,1.0),new T.Vector3(0,2.3,12)
+  ]);
+  const targets=[new T.Vector3(0,0,-15),new T.Vector3(-6.8,-.8,-13),new T.Vector3(-3.4,.9,-13),new T.Vector3(0,-.8,-13),new T.Vector3(3.4,.9,-13),new T.Vector3(6.8,-.8,-13),new T.Vector3(0,2,-15)];
+
+  const ids=['profile','projects','contact','ai-section'];
+  function setPopup(active,book,local){
+    ids.forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;let opacity=0,scale=.35,blur=12;
+      if(i===active){const reveal=range(local,.18,.43),hold=range(local,.43,.68),hide=range(local,.68,.84);opacity=Math.max(0,Math.min(1,reveal,1-hide));scale=.35+.65*Math.max(reveal,hold)*(1-hide);blur=12*(1-Math.max(reveal,hold));
+        book.anchor.getWorldPosition(book._screen|| (book._screen=new T.Vector3()));const v=book._screen.clone().project(camera);const x=(v.x*.5+.5)*innerWidth,y=(-v.y*.5+.5)*innerHeight;el.style.transform=`translate3d(calc(-50% + ${x-innerWidth/2}px),calc(-50% + ${y-innerHeight/2}px),0) scale(${scale})`;el.style.filter=`blur(${blur}px)`;
+      } else {el.style.transform='translate(-50%,-50%) scale(.35)';el.style.filter='blur(12px)'}
+      el.style.opacity=opacity;
+    });
   }
-  window.initNarrativeWorld=()=>{if(!window.__animKnowledgeVault)new LibraryEngine().init()};
+
+  let progress=0,target=0;
+  const readScroll=()=>{const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);target=clamp(scrollY/max)};
+  addEventListener('scroll',readScroll,{passive:true});readScroll();
+
+  function frame(){
+    progress+=(target-progress)*.075;
+    const p=progress;
+    const pos=cameraPath.getPointAt(p);camera.position.lerp(pos,.09);
+    const ti=p*(targets.length-1),a=Math.floor(ti),b=Math.min(targets.length-1,a+1),q=ti-a;
+    const look=targets[a].clone().lerp(targets[b],q);camera.lookAt(look);
+    // Four actual content books are spread through the scroll; the fifth blue is decorative.
+    const zones=[.08,.31,.54,.77];let active=-1;
+    books.forEach((book,i)=>{
+      if(i>=4){book.update(0,0,1);return}
+      const center=zones[i],span=.22,local=clamp((p-(center-span/2))/span);
+      const extract=range(local,0,.22),open=range(local,.20,.43),returning=range(local,.70,1);
+      book.update(extract,open,returning);
+      if(local>.08&&local<.92)active=i;
+    });
+    if(active>=0){const center=zones[active],local=clamp((p-(center-.11))/.22);setPopup(active,books[active],local)}else{ids.forEach(id=>{const e=document.getElementById(id);if(e)e.style.opacity=0})}
+    renderer.render(scene,camera);requestAnimationFrame(frame);
+  }
+  addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,matchMedia('(max-width:700px)').matches?1.2:1.6));renderer.setSize(innerWidth,innerHeight)},{passive:true});
+  frame();
 })();
