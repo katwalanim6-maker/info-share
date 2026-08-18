@@ -1,37 +1,41 @@
-/* ANIM OS — CINEMATIC HELLO INTRO */
-#intro.anim-hello{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:#000;color:#fff;cursor:default;opacity:1;visibility:visible;transition:opacity .9s cubic-bezier(.22,1,.36,1),visibility .9s}
+/* ANIM OS — premium handwritten cinematic intro */
+#intro.anim-hello{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:#000;color:#fff;opacity:1;visibility:visible;transition:opacity .8s cubic-bezier(.22,1,.36,1),visibility .8s}
 #intro.anim-hello.is-exiting{opacity:0;visibility:hidden;pointer-events:none}
-.anim-hello-bg{position:absolute;inset:-20%;background:radial-gradient(circle at 50% 48%,rgba(255,255,255,.055),transparent 18%),radial-gradient(circle at 50% 50%,rgba(160,160,160,.025),transparent 42%);animation:animBreath 4s ease-in-out infinite}
-.anim-hello-vignette{position:absolute;inset:0;background:radial-gradient(circle,transparent 32%,rgba(0,0,0,.78) 100%);pointer-events:none}
-.anim-hello-stage{position:relative;width:min(92vw,760px);height:min(72vh,620px);display:grid;place-items:center;perspective:1400px}
-.anim-script{position:absolute;width:min(84vw,690px);height:auto;overflow:visible;filter:drop-shadow(0 0 14px rgba(255,255,255,.08));}
-.anim-script path{fill:none;stroke:#f7f7f7;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2400;stroke-dashoffset:2400;opacity:0}
-.anim-script .script-soft{stroke:#888;stroke-width:12;filter:blur(7px);opacity:0}
-.anim-script.play path:not(.script-soft){animation:helloWrite 2.55s cubic-bezier(.77,0,.18,1) forwards}
-.anim-script.play .script-soft{animation:helloGlow 2.55s ease forwards}
-.anim-letters{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:scale(1.28);}
-.anim-word{font-family:"Times New Roman",Georgia,serif;font-size:clamp(74px,16vw,150px);font-weight:500;letter-spacing:-.08em;color:#fff;filter:drop-shadow(0 0 22px rgba(255,255,255,.14));}
-.anim-word span{display:inline-block;opacity:0;transform:translateY(35px) scale(.7);will-change:transform,opacity}
-.anim-word span:nth-child(1){animation:wordIn .7s 2.15s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(2){animation:wordIn .7s 2.24s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(3){animation:wordIn .7s 2.33s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(4){animation:wordIn .7s 2.42s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(5){animation:wordIn .7s 2.51s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(6){animation:wordIn .7s 2.60s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(7){animation:wordIn .7s 2.69s cubic-bezier(.16,1,.3,1) forwards}
-.anim-word.collapsing{animation:wordCollapse 1.05s cubic-bezier(.76,0,.18,1) forwards}
+.anim-hello-bg{position:absolute;inset:0;background:#000}
+.anim-hello-vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.012),transparent 42%);pointer-events:none}
+.anim-hello-stage{position:relative;width:min(94vw,820px);height:min(72vh,620px);display:grid;place-items:center;perspective:1400px}
+
+/* Handwritten Anim OS */
+.anim-script{position:absolute;width:min(88vw,720px);height:auto;overflow:visible;}
+.anim-script text{font-family:"Caveat","Segoe Print","Bradley Hand",cursive;font-size:176px;font-weight:600;letter-spacing:2px;paint-order:stroke fill;}
+.anim-script .script-handwriting{fill:transparent;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1150;stroke-dashoffset:1150;opacity:0;filter:drop-shadow(0 0 5px rgba(255,255,255,.18));animation:none}
+.anim-script .script-soft{fill:transparent;stroke:rgba(255,255,255,.55);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1150;stroke-dashoffset:1150;opacity:0;filter:blur(8px);animation:none}
+.anim-script.play .script-handwriting{animation:handwrite 3.2s cubic-bezier(.72,0,.16,1) forwards}
+.anim-script.play .script-soft{animation:handwriteGlow 3.2s cubic-bezier(.72,0,.16,1) forwards}
+
+/* Actual uploaded A logo */
 .anim-logo{position:absolute;width:clamp(112px,24vw,205px);aspect-ratio:1;display:grid;place-items:center;opacity:0;transform:scale(.28) rotate(-8deg);will-change:transform,opacity,filter;}
-.anim-logo-image{position:relative;width:100%;height:100%;object-fit:contain;display:block;z-index:2;filter:drop-shadow(0 0 0 rgba(255,255,255,0));will-change:transform,filter}
-.logo-aura{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.28),rgba(255,255,255,.06) 35%,transparent 70%);filter:blur(18px);opacity:0;z-index:0}
-.logo-shine{position:absolute;z-index:3;left:-45%;top:-25%;width:28%;height:150%;transform:rotate(24deg) translateX(-260%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);filter:blur(7px);opacity:0;pointer-events:none;mix-blend-mode:screen}
+.anim-logo-image{position:relative;width:100%;height:100%;object-fit:contain;display:block;z-index:2;filter:drop-shadow(0 0 0 rgba(255,255,255,0));will-change:filter,transform}
+.logo-aura{position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),rgba(255,255,255,.075) 28%,rgba(255,255,255,.025) 48%,transparent 72%);filter:blur(20px);opacity:0;z-index:0}
+.logo-aura-wide{inset:-20%;background:radial-gradient(circle,rgba(255,255,255,.075),transparent 62%);filter:blur(28px)}
+.logo-shine{position:absolute;z-index:3;left:-55%;top:-30%;width:24%;height:160%;transform:rotate(23deg) translateX(-260%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.78),rgba(255,255,255,.25),transparent);filter:blur(6px);opacity:0;pointer-events:none;mix-blend-mode:screen}
 .anim-logo.reveal{animation:logoReveal 1.15s cubic-bezier(.16,1,.3,1) forwards}
-.anim-logo.reveal .logo-aura{animation:auraIn .8s .15s ease forwards}
-.anim-logo.reveal .logo-shine{animation:logoShine 1.05s .28s cubic-bezier(.16,1,.3,1) forwards}
-.anim-caption{position:absolute;bottom:7%;left:50%;transform:translateX(-50%);font:600 9px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.48em;color:rgba(255,255,255,.42);white-space:nowrap;opacity:0;animation:captionIn .8s 4.2s ease forwards}
-.anim-line{position:absolute;width:min(58vw,300px);height:1px;bottom:calc(7% + 22px);left:50%;transform:translateX(-50%) scaleX(0);background:linear-gradient(90deg,transparent,#fff,transparent);opacity:.5;animation:lineIn .9s 4.15s cubic-bezier(.16,1,.3,1) forwards}
-@keyframes helloWrite{0%{stroke-dashoffset:2400;opacity:0}8%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
-@keyframes helloGlow{0%{stroke-dashoffset:2400;opacity:0}18%{opacity:.13}100%{stroke-dashoffset:0;opacity:.07}}
-@keyframes wordIn{to{opacity:1;transform:none}}
-@keyframes wordCollapse{0%{opacity:1;transform:scale(1) translate3d(0,0,0);letter-spacing:-.08em;filter:blur(0)}45%{opacity:1;transform:scale(.48) translate3d(0,0,0);filter:blur(.3px)}100%{opacity:0;transform:scale(.055) translate3d(0,0,0);letter-spacing:-.25em;filter:blur(2px)}}
-@keyframes logoReveal{0%{opacity:0;transform:scale(.28) rotate(-8deg);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}52%{opacity:1;transform:scale(1.1) rotate(1deg);filter:drop-shadow(0 0 42px rgba(255,255,255,.36))}78%{transform:scale(.97) rotate(-.3deg)}100%{opacity:1;transform:scale(1) rotate(0);filter:drop-shadow(0 0 22px rgba(255,255,255,.2))}}
-@keyframes auraIn{from{opacity:0;transform:scale(.55)}to{opacity:.9;transform:scale(1.15)}}
-@keyframes logoShine{0%{opacity:0;transform:rotate(24deg) translateX(-260%)}15%{opacity:.9}100%{opacity:0;transform:rotate(24deg) translateX(600%)}}
+.anim-logo.reveal .logo-aura{animation:auraPulse 2.4s 5.1s ease-in-out infinite alternate}
+.anim-logo.reveal .logo-aura-wide{animation:auraWide 2.4s 5.1s ease-in-out infinite alternate}
+.anim-logo.reveal .logo-shine{animation:logoShine 1.2s 5.55s cubic-bezier(.16,1,.3,1) forwards}
+
+/* Minimal caption only appears with the logo; background remains pure black. */
+.anim-caption{position:absolute;bottom:7%;left:50%;transform:translateX(-50%);font:600 9px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.48em;color:rgba(255,255,255,.38);white-space:nowrap;opacity:0;animation:captionIn .8s 5.7s ease forwards}
+.anim-line{position:absolute;width:min(58vw,300px);height:1px;bottom:calc(7% + 22px);left:50%;transform:translateX(-50%) scaleX(0);background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);opacity:.35;animation:lineIn .9s 5.65s cubic-bezier(.16,1,.3,1) forwards}
+
+@keyframes handwrite{0%{stroke-dashoffset:1150;opacity:0}5%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+@keyframes handwriteGlow{0%{stroke-dashoffset:1150;opacity:0}12%{opacity:.035}55%{opacity:.10}100%{stroke-dashoffset:0;opacity:.025}}
+@keyframes logoReveal{0%{opacity:0;transform:scale(.28) rotate(-8deg);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}45%{opacity:1;transform:scale(1.1) rotate(1deg);filter:drop-shadow(0 0 40px rgba(255,255,255,.3))}72%{transform:scale(.98) rotate(-.25deg)}100%{opacity:1;transform:scale(1) rotate(0);filter:drop-shadow(0 0 18px rgba(255,255,255,.18))}}
+@keyframes auraPulse{0%{opacity:.18;transform:scale(.92)}100%{opacity:.42;transform:scale(1.1)}}
+@keyframes auraWide{0%{opacity:.08;transform:scale(.92)}100%{opacity:.18;transform:scale(1.08)}}
+@keyframes logoShine{0%{opacity:0;transform:rotate(23deg) translateX(-260%)}15%{opacity:.75}100%{opacity:0;transform:rotate(23deg) translateX(620%)}}
 @keyframes captionIn{to{opacity:1}}
 @keyframes lineIn{to{transform:translateX(-50%) scaleX(1)}}
-@keyframes animBreath{50%{transform:scale(1.035);opacity:.72}}
-@media(max-width:520px){.anim-caption{font-size:7px;letter-spacing:.34em}.anim-script{width:94vw}.anim-logo{width:34vw}}
-@media(prefers-reduced-motion:reduce){.anim-script path,.anim-script .script-soft,.anim-word span,.anim-word.collapsing,.anim-logo.reveal,.anim-caption,.anim-line,.anim-logo.reveal .logo-aura,.anim-logo.reveal .logo-shine{animation-duration:.01ms!important;animation-delay:0ms!important}.anim-hello-bg{animation:none}}
+
+@media(max-width:520px){.anim-caption{font-size:7px;letter-spacing:.34em}.anim-script{width:94vw}.anim-script text{font-size:190px}.anim-logo{width:34vw}}
+@media(prefers-reduced-motion:reduce){.anim-script text,.anim-logo.reveal,.anim-caption,.anim-line,.anim-logo.reveal .logo-aura,.anim-logo.reveal .logo-aura-wide,.anim-logo.reveal .logo-shine{animation-duration:.01ms!important;animation-delay:0ms!important}}
