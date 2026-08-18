@@ -15,30 +15,90 @@
 </head>
 <body>
 <canvas id="story-canvas" aria-hidden="true"></canvas>
+
+<!-- Automatic cinematic intro. No tap/click gate. -->
 <div id="intro" class="intro-stage anim-hello" aria-label="Anim OS">
-  <div class="anim-hello-bg"></div><div class="anim-hello-vignette"></div>
-  <div class="anim-hello-stage"><div class="anim-logo" aria-label="Anim OS A logo">
-    <div class="logo-aura"></div><div class="logo-aura logo-aura-wide"></div><div class="logo-shine"></div>
-    <img src="file_00000000589481faa3b9d92dbe491f94.png" alt="Anim OS logo" class="anim-logo-image">
-  </div></div>
+  <div class="anim-hello-bg"></div>
+  <div class="anim-hello-vignette"></div>
+  <div class="anim-hello-stage">
+    <div class="anim-logo" aria-label="Anim OS A logo">
+      <div class="logo-aura"></div>
+      <div class="logo-aura logo-aura-wide"></div>
+      <div class="logo-shine"></div>
+      <img src="file_00000000589481faa3b9d92dbe491f94.png" alt="Anim OS logo" class="anim-logo-image">
+    </div>
+  </div>
 </div>
-<div id="loading" class="screen-center" style="display:none!important"><div class="liquid-card boot-card"><div class="boot-title">ANIM OS</div><div class="line">Initializing...</div><div class="progress"><div class="bar" id="bar"></div></div><div class="line muted" id="status">Loading Modules...</div></div></div>
+
 <div id="main">
-  <header class="navbar liquid-glass"><div class="brand"><span class="brand-icon">A</span><span>Anim OS</span></div><nav><a href="#profile">Profile</a><a href="#projects">Projects</a><a href="#ai-section">AI Anim</a><a href="#contact">Contact</a></nav><a href="#ai-section" class="liquid-btn small-btn">Talk to AI</a></header>
+  <header class="navbar liquid-glass">
+    <div class="brand"><span class="brand-icon">A</span><span>Anim OS</span></div>
+    <nav>
+      <a href="#profile">Profile</a>
+      <a href="#projects">Projects</a>
+      <a href="#ai-section">AI Anim</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a href="#ai-section" class="liquid-btn small-btn">Talk to AI</a>
+  </header>
+
   <main class="container">
-    <section id="profile" class="hero"><div class="status-pill liquid-glass"><span></span> Digital Identity Online</div><div class="profile-wrap"><img src="Profile.png" alt="Anim Katwal" class="profile"></div><p class="eyebrow">WELCOME TO</p><h1>Anim Katwal</h1><h3 id="greeting"></h3><p class="bio">Student • Fun Vision • Musician</p><p class="hero-text">A personal space to connect, explore, and talk with AI Anim.</p><a href="#ai-section" class="liquid-btn primary-btn">🤖 Talk with AI Anim</a></section>
-    <section id="projects" class="glass-panel vault-projects"><div class="section-heading"><span>CREATIVE SYSTEMS</span><h2>Things I'm building.</h2><p>Projects, experiments and ideas inside the vault.</p></div><div class="project-grid">
-      <article class="project-card"><div class="project-mark">A</div><div><strong>Anim OS</strong><small>Interactive digital identity and personal operating experience.</small></div></article>
-      <article class="project-card"><div class="project-mark">G</div><div><strong>Gym Tracker</strong><small>Workout, streak, food and progress tracking designed as a PWA.</small></div></article>
-      <article class="project-card"><div class="project-mark">I</div><div><strong>Info Share</strong><small>A fast communication hub for sharing questions, feedback and ideas.</small></div></article>
-    </div></section>
-    <section id="contact" class="glass-panel"><div class="section-heading"><span>CONNECT</span><h2>Find me anywhere.</h2></div><div class="buttons">
-      <a id="call1" href="tel:9700068507" class="contact-card"><span>📞</span><div><strong>Call</strong><small>9700068507</small></div></a><a id="call2" href="tel:9712036065" class="contact-card"><span>📞</span><div><strong>Second Number</strong><small>9712036065</small></div></a><a href="https://wa.me/9779700068407" class="contact-card"><span>💬</span><div><strong>WhatsApp</strong><small>Message me</small></div></a><a href="https://t.me/Animkatwal" class="contact-card"><span>✈️</span><div><strong>Telegram</strong><small>@Animkatwal</small></div></a><a href="https://instagram.com/anim.pc" class="contact-card"><span>📸</span><div><strong>Instagram</strong><small>@anim.pc</small></div></a><a href="https://www.facebook.com/share/19HQEFTybu/" class="contact-card"><span>📘</span><div><strong>Facebook</strong><small>Connect with me</small></div></a><a href="https://www.tiktok.com/@anim.katwal" class="contact-card"><span>🎵</span><div><strong>TikTok</strong><small>@anim.katwal</small></div></a><a href="mailto:katwalanim6@gmail.com" class="contact-card"><span>📧</span><div><strong>Email</strong><small>katwalanim6@gmail.com</small></div></a>
-    </div><div class="utility-row"><button id="shareBtn" class="liquid-btn">📤 Share</button><button id="copyBtn" class="liquid-btn">📋 Copy Phone</button><button id="saveBtn" class="liquid-btn">💾 Save Contact</button></div></section>
-    <section id="ai-section" class="ai-section glass-panel"><div class="section-heading"><span>AI SYSTEM</span><h2>Talk with AI Anim.</h2><p>Ask anything about Anim.</p></div><div id="chat-box"></div><div class="chat-input-row"><input type="text" id="user-input" placeholder="Ask AI Anim..." autocomplete="off"><button id="send-btn" class="liquid-btn send-btn">Send</button></div></section>
+    <section id="profile" class="hero">
+      <div class="status-pill liquid-glass"><span></span> Digital Identity Online</div>
+      <div class="profile-wrap"><img src="Profile.png" alt="Anim Katwal" class="profile"></div>
+      <p class="eyebrow">WELCOME TO</p>
+      <h1>Anim Katwal</h1>
+      <h3 id="greeting"></h3>
+      <p class="bio">Student • Fun Vision • Musician</p>
+      <p class="hero-text">A personal space to connect, explore, and talk with AI Anim.</p>
+      <a href="#ai-section" class="liquid-btn primary-btn">🤖 Talk with AI Anim</a>
+    </section>
+
+    <section id="projects" class="glass-panel vault-projects">
+      <div class="section-heading">
+        <span>CREATIVE SYSTEMS</span>
+        <h2>Things I'm building.</h2>
+        <p>Projects, experiments and ideas inside the vault.</p>
+      </div>
+      <div class="project-grid">
+        <article class="project-card"><div class="project-mark">A</div><div><strong>Anim OS</strong><small>Interactive digital identity and personal operating experience.</small></div></article>
+        <article class="project-card"><div class="project-mark">G</div><div><strong>Gym Tracker</strong><small>Workout, streak, food and progress tracking designed as a PWA.</small></div></article>
+        <article class="project-card"><div class="project-mark">I</div><div><strong>Info Share</strong><small>A fast communication hub for sharing questions, feedback and ideas.</small></div></article>
+      </div>
+    </section>
+
+    <section id="contact" class="glass-panel">
+      <div class="section-heading"><span>CONNECT</span><h2>Find me anywhere.</h2></div>
+      <div class="buttons">
+        <a id="call1" href="tel:9700068507" class="contact-card"><span>📞</span><div><strong>Call</strong><small>9700068507</small></div></a>
+        <a id="call2" href="tel:9712036065" class="contact-card"><span>📞</span><div><strong>Second Number</strong><small>9712036065</small></div></a>
+        <a href="https://wa.me/9779700068407" class="contact-card"><span>💬</span><div><strong>WhatsApp</strong><small>Message me</small></div></a>
+        <a href="https://t.me/Animkatwal" class="contact-card"><span>✈️</span><div><strong>Telegram</strong><small>@Animkatwal</small></div></a>
+        <a href="https://instagram.com/anim.pc" class="contact-card"><span>📸</span><div><strong>Instagram</strong><small>@anim.pc</small></div></a>
+        <a href="https://www.facebook.com/share/19HQEFTybu/" class="contact-card"><span>📘</span><div><strong>Facebook</strong><small>Connect with me</small></div></a>
+        <a href="https://www.tiktok.com/@anim.katwal" class="contact-card"><span>🎵</span><div><strong>TikTok</strong><small>@anim.katwal</small></div></a>
+        <a href="mailto:katwalanim6@gmail.com" class="contact-card"><span>📧</span><div><strong>Email</strong><small>katwalanim6@gmail.com</small></div></a>
+      </div>
+      <div class="utility-row">
+        <button id="shareBtn" class="liquid-btn">📤 Share</button>
+        <button id="copyBtn" class="liquid-btn">📋 Copy Phone</button>
+        <button id="saveBtn" class="liquid-btn">💾 Save Contact</button>
+      </div>
+    </section>
+
+    <section id="ai-section" class="ai-section glass-panel">
+      <div class="section-heading"><span>AI SYSTEM</span><h2>Talk with AI Anim.</h2><p>Ask anything about Anim.</p></div>
+      <div id="chat-box"></div>
+      <div class="chat-input-row">
+        <input type="text" id="user-input" placeholder="Ask AI Anim..." autocomplete="off">
+        <button id="send-btn" class="liquid-btn send-btn">Send</button>
+      </div>
+    </section>
+
     <footer>Made with ❤️ by Anim</footer>
   </main>
 </div>
+
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
