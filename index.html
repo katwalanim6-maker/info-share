@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="narrative-fix.css">
 <link rel="stylesheet" href="anim-intro.css">
@@ -21,19 +21,15 @@
   <div class="anim-hello-bg"></div>
   <div class="anim-hello-vignette"></div>
   <div class="anim-hello-stage">
+    <!-- Custom handwritten Anim OS lettering. The stroke is revealed like ink being written. -->
     <svg class="anim-script" viewBox="0 0 1200 500" aria-hidden="true">
-      <path class="script-soft" d="M125 355 C185 210 270 120 355 125 C410 128 415 190 355 214 C288 241 210 217 182 286 C157 348 245 389 333 345 C430 297 458 164 540 145 C606 130 632 187 593 229 C553 273 468 271 461 333 C454 389 530 393 594 351 C657 311 687 209 758 191 C817 176 845 224 815 264 C783 306 706 307 699 350 C690 402 766 405 836 356 C902 309 926 229 1002 208 C1048 195 1077 226 1050 258 C1021 293 964 292 949 332 C932 377 986 390 1067 335" />
-      <path d="M125 355 C185 210 270 120 355 125 C410 128 415 190 355 214 C288 241 210 217 182 286 C157 348 245 389 333 345 C430 297 458 164 540 145 C606 130 632 187 593 229 C553 273 468 271 461 333 C454 389 530 393 594 351 C657 311 687 209 758 191 C817 176 845 224 815 264 C783 306 706 307 699 350 C690 402 766 405 836 356 C902 309 926 229 1002 208 C1048 195 1077 226 1050 258 C1021 293 964 292 949 332 C932 377 986 390 1067 335" />
-      <path d="M170 365 C330 410 525 410 700 365 C835 331 960 320 1095 350" />
+      <text class="script-soft" x="600" y="285" text-anchor="middle">Anim OS</text>
+      <text class="script-handwriting" x="600" y="285" text-anchor="middle">Anim OS</text>
     </svg>
 
-    <div class="anim-letters" aria-hidden="true">
-      <div class="anim-word"><span>A</span><span>N</span><span>I</span><span>M</span><span>&nbsp;</span><span>O</span><span>S</span></div>
-    </div>
-
-    <!-- Uploaded Anim OS A logo -->
     <div class="anim-logo" aria-label="Anim OS A logo">
       <div class="logo-aura"></div>
+      <div class="logo-aura logo-aura-wide"></div>
       <div class="logo-shine"></div>
       <img src="file_00000000589481faa3b9d92dbe491f94.png" alt="Anim OS logo" class="anim-logo-image">
     </div>
@@ -43,7 +39,6 @@
   </div>
 </div>
 
-<!-- Legacy boot kept as a safety fallback, hidden during the cinematic intro. -->
 <div id="loading" class="screen-center" style="display:none!important">
   <div class="liquid-card boot-card">
     <div class="boot-title">ANIM OS</div>
@@ -57,13 +52,11 @@
   <div class="orb orb-cyan"></div>
   <div class="orb orb-purple"></div>
   <div class="orb orb-emerald"></div>
-
   <header class="navbar liquid-glass">
     <div class="brand"><span class="brand-icon">💧</span><span>Anim OS</span></div>
     <nav><a href="#profile">Profile</a><a href="#ai-section">AI Anim</a><a href="#contact">Contact</a></nav>
     <a href="#ai-section" class="liquid-btn small-btn">Talk to AI</a>
   </header>
-
   <main class="container">
     <section id="profile" class="hero">
       <div class="status-pill liquid-glass"><span></span> Digital Identity Online</div>
@@ -73,7 +66,6 @@
       <p class="hero-text">A personal space to connect, explore, and talk with AI Anim.</p>
       <a href="#ai-section" class="liquid-btn primary-btn">🤖 Talk with AI Anim</a>
     </section>
-
     <section id="contact" class="glass-panel">
       <div class="section-heading"><span>CONNECT</span><h2>Find me anywhere.</h2></div>
       <div class="buttons">
@@ -88,12 +80,10 @@
       </div>
       <div class="utility-row"><button id="shareBtn" class="liquid-btn">📤 Share</button><button id="copyBtn" class="liquid-btn">📋 Copy Phone</button><button id="saveBtn" class="liquid-btn">💾 Save Contact</button></div>
     </section>
-
     <section id="ai-section" class="ai-section glass-panel"><div class="section-heading"><span>AI SYSTEM</span><h2>Talk with AI Anim.</h2><p>Ask anything about Anim.</p></div><div id="chat-box"></div><div class="chat-input-row"><input type="text" id="user-input" placeholder="Ask AI Anim..." autocomplete="off"><button id="send-btn" class="liquid-btn send-btn">Send</button></div></section>
     <footer>Made with ❤️ by Anim</footer>
   </main>
 </div>
-
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
