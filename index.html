@@ -15,95 +15,54 @@
 </head>
 <body>
 <canvas id="story-canvas" aria-hidden="true"></canvas>
-
-<!-- Automatic cinematic intro. No tap/click gate. -->
 <div id="intro" class="intro-stage anim-hello" aria-label="Anim OS">
-  <div class="anim-hello-bg"></div>
-  <div class="anim-hello-vignette"></div>
-  <div class="anim-hello-stage">
-    <div class="anim-logo" aria-label="Anim OS A logo">
-      <div class="logo-aura"></div>
-      <div class="logo-aura logo-aura-wide"></div>
-      <div class="logo-shine"></div>
-      <img src="file_00000000589481faa3b9d92dbe491f94.png" alt="Anim OS logo" class="anim-logo-image">
-    </div>
-  </div>
+  <div class="anim-hello-bg"></div><div class="anim-hello-vignette"></div>
+  <div class="anim-hello-stage"><div class="anim-logo" aria-label="Anim OS A logo">
+    <div class="logo-aura"></div><div class="logo-aura logo-aura-wide"></div><div class="logo-shine"></div>
+    <img src="file_00000000589481faa3b9d92dbe491f94.png" alt="Anim OS logo" class="anim-logo-image">
+  </div></div>
 </div>
-
 <div id="main">
-  <header class="navbar liquid-glass">
-    <div class="brand"><span class="brand-icon">A</span><span>Anim OS</span></div>
-    <nav>
-      <a href="#profile">Profile</a>
-      <a href="#projects">Projects</a>
-      <a href="#ai-section">AI Anim</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <a href="#ai-section" class="liquid-btn small-btn">Talk to AI</a>
-  </header>
-
-  <main class="container">
-    <section id="profile" class="hero">
-      <div class="status-pill liquid-glass"><span></span> Digital Identity Online</div>
-      <div class="profile-wrap"><img src="Profile.png" alt="Anim Katwal" class="profile"></div>
-      <p class="eyebrow">WELCOME TO</p>
-      <h1>Anim Katwal</h1>
-      <h3 id="greeting"></h3>
-      <p class="bio">Student • Fun Vision • Musician</p>
-      <p class="hero-text">A personal space to connect, explore, and talk with AI Anim.</p>
-      <a href="#ai-section" class="liquid-btn primary-btn">🤖 Talk with AI Anim</a>
-    </section>
-
-    <section id="projects" class="glass-panel vault-projects">
-      <div class="section-heading">
-        <span>CREATIVE SYSTEMS</span>
-        <h2>Things I'm building.</h2>
-        <p>Projects, experiments and ideas inside the vault.</p>
-      </div>
-      <div class="project-grid">
-        <article class="project-card"><div class="project-mark">A</div><div><strong>Anim OS</strong><small>Interactive digital identity and personal operating experience.</small></div></article>
-        <article class="project-card"><div class="project-mark">G</div><div><strong>Gym Tracker</strong><small>Workout, streak, food and progress tracking designed as a PWA.</small></div></article>
-        <article class="project-card"><div class="project-mark">I</div><div><strong>Info Share</strong><small>A fast communication hub for sharing questions, feedback and ideas.</small></div></article>
-      </div>
-    </section>
-
-    <section id="contact" class="glass-panel">
-      <div class="section-heading"><span>CONNECT</span><h2>Find me anywhere.</h2></div>
-      <div class="buttons">
-        <a id="call1" href="tel:9700068507" class="contact-card"><span>📞</span><div><strong>Call</strong><small>9700068507</small></div></a>
-        <a id="call2" href="tel:9712036065" class="contact-card"><span>📞</span><div><strong>Second Number</strong><small>9712036065</small></div></a>
-        <a href="https://wa.me/9779700068407" class="contact-card"><span>💬</span><div><strong>WhatsApp</strong><small>Message me</small></div></a>
-        <a href="https://t.me/Animkatwal" class="contact-card"><span>✈️</span><div><strong>Telegram</strong><small>@Animkatwal</small></div></a>
-        <a href="https://instagram.com/anim.pc" class="contact-card"><span>📸</span><div><strong>Instagram</strong><small>@anim.pc</small></div></a>
-        <a href="https://www.facebook.com/share/19HQEFTybu/" class="contact-card"><span>📘</span><div><strong>Facebook</strong><small>Connect with me</small></div></a>
-        <a href="https://www.tiktok.com/@anim.katwal" class="contact-card"><span>🎵</span><div><strong>TikTok</strong><small>@anim.katwal</small></div></a>
-        <a href="mailto:katwalanim6@gmail.com" class="contact-card"><span>📧</span><div><strong>Email</strong><small>katwalanim6@gmail.com</small></div></a>
-      </div>
-      <div class="utility-row">
-        <button id="shareBtn" class="liquid-btn">📤 Share</button>
-        <button id="copyBtn" class="liquid-btn">📋 Copy Phone</button>
-        <button id="saveBtn" class="liquid-btn">💾 Save Contact</button>
-      </div>
-    </section>
-
-    <section id="ai-section" class="ai-section glass-panel">
-      <div class="section-heading"><span>AI SYSTEM</span><h2>Talk with AI Anim.</h2><p>Ask anything about Anim.</p></div>
-      <div id="chat-box"></div>
-      <div class="chat-input-row">
-        <input type="text" id="user-input" placeholder="Ask AI Anim..." autocomplete="off">
-        <button id="send-btn" class="liquid-btn send-btn">Send</button>
-      </div>
-    </section>
-
-    <footer>Made with ❤️ by Anim</footer>
-  </main>
-</div>
-
+<header class="navbar liquid-glass"><div class="brand"><span class="brand-icon">A</span><span>Anim OS</span></div><nav><a href="#profile">Profile</a><a href="#projects">Projects</a><a href="#ai-section">AI Anim</a><a href="#contact">Contact</a></nav><a href="#ai-section" class="liquid-btn small-btn">Talk to AI</a></header>
+<main class="container">
+<section id="profile" class="hero"><div class="status-pill liquid-glass"><span></span> Digital Identity Online</div><div class="profile-wrap"><img src="Profile.png" alt="Anim Katwal" class="profile"></div><p class="eyebrow">WELCOME TO</p><h1>Anim Katwal</h1><h3 id="greeting"></h3><p class="bio">Student • Fun Vision • Musician</p><p class="hero-text">A personal space to connect, explore, and talk with AI Anim.</p><a href="#ai-section" class="liquid-btn primary-btn">🤖 Talk with AI Anim</a></section>
+<section id="projects" class="glass-panel vault-projects"><div class="section-heading"><span>CREATIVE SYSTEMS</span><h2>Things I'm building.</h2><p>Projects, experiments and ideas inside the vault.</p></div><div class="project-grid"><article class="project-card"><div class="project-mark">A</div><div><strong>Anim OS</strong><small>Interactive digital identity and personal operating experience.</small></div></article><article class="project-card"><div class="project-mark">G</div><div><strong>Gym Tracker</strong><small>Workout, streak, food and progress tracking designed as a PWA.</small></div></article><article class="project-card"><div class="project-mark">I</div><div><strong>Info Share</strong><small>A fast communication hub for sharing questions, feedback and ideas.</small></div></article></div></section>
+<section id="contact" class="glass-panel"><div class="section-heading"><span>CONNECT</span><h2>Find me anywhere.</h2></div><div class="buttons"><a id="call1" href="tel:9700068507" class="contact-card"><span>📞</span><div><strong>Call</strong><small>9700068507</small></div></a><a id="call2" href="tel:9712036065" class="contact-card"><span>📞</span><div><strong>Second Number</strong><small>9712036065</small></div></a><a href="https://wa.me/9779700068407" class="contact-card"><span>💬</span><div><strong>WhatsApp</strong><small>Message me</small></div></a><a href="https://t.me/Animkatwal" class="contact-card"><span>✈️</span><div><strong>Telegram</strong><small>@Animkatwal</small></div></a><a href="https://instagram.com/anim.pc" class="contact-card"><span>📸</span><div><strong>Instagram</strong><small>@anim.pc</small></div></a><a href="https://www.facebook.com/share/19HQEFTybu/" class="contact-card"><span>📘</span><div><strong>Facebook</strong><small>Connect with me</small></div></a><a href="https://www.tiktok.com/@anim.katwal" class="contact-card"><span>🎵</span><div><strong>TikTok</strong><small>@anim.katwal</small></div></a><a href="mailto:katwalanim6@gmail.com" class="contact-card"><span>📧</span><div><strong>Email</strong><small>katwalanim6@gmail.com</small></div></a></div><div class="utility-row"><button id="shareBtn" class="liquid-btn">📤 Share</button><button id="copyBtn" class="liquid-btn">📋 Copy Phone</button><button id="saveBtn" class="liquid-btn">💾 Save Contact</button></div></section>
+<section id="ai-section" class="ai-section glass-panel"><div class="section-heading"><span>AI SYSTEM</span><h2>Talk with AI Anim.</h2><p>Ask anything about Anim.</p></div><div id="chat-box"></div><div class="chat-input-row"><input type="text" id="user-input" placeholder="Ask AI Anim..." autocomplete="off"><button id="send-btn" class="liquid-btn send-btn">Send</button></div></section>
+<footer>Made with ❤️ by Anim</footer>
+</main></div>
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="script.js"></script>
 <script src="bookshelf-room.js"></script>
 <script src="anim-intro.js"></script>
+<script>
+(() => {
+  'use strict';
+  const canvas=document.getElementById('story-canvas');
+  if(!canvas||!window.THREE)return;
+  canvas.style.pointerEvents='auto';
+  const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2();
+  let opened=null, animating=false, raf=0;
+  const ids=['profile','projects','contact','ai-section','future'];
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  function findBook(obj){while(obj){if(obj.anchor&&obj.frontPivot&&obj.pages)return obj;obj=obj.parent}return null}
+  function bookId(book){let best=0,d=Infinity;const xy=[[-10,8.25],[-3.5,3.35],[3.45,-1.55],[10,5.8],[2.1,10.7]];xy.forEach((p,i)=>{const q=(book.position.x-p[0])**2+(book.position.y-p[1])**2;if(q<d){d=q;best=i}});return ids[best]}
+  function setPanel(id,on){ids.slice(0,4).forEach(x=>{const e=document.getElementById(x);if(!e)return;e.style.opacity=on&&x===id?'1':'0';e.style.pointerEvents=on&&x===id?'auto':'none';if(on&&x===id){e.style.left='50%';e.style.top='50%';e.style.transform='translate(-50%,-50%) scale(1)';e.style.filter='none'}})}
+  function stop(){cancelAnimationFrame(raf);animating=false;document.documentElement.style.overflow='';if(opened){opened.group.position.copy(opened.homePos);opened.group.quaternion.copy(opened.homeQuat);opened.group.scale.copy(opened.homeScale);opened.frontPivot.rotation.y=0;opened.pages.children.forEach((p,i)=>{const t=i/(opened.pages.children.length-1);p.position.set(0,0,.02+i*.004);p.rotation.y=0});opened.glow.intensity=0}setPanel('',false);opened=null}
+  function animateBook(book,opening){
+    if(animating)stop();
+    if(!opening){stop();return}
+    opened={group:book,frontPivot:book.frontPivot,pages:book.pages,glow:book.glow,homePos:book.position.clone(),homeQuat:book.quaternion.clone(),homeScale:book.scale.clone()};
+    const parent=book.parent;const dir=new THREE.Vector3();camera.getWorldDirection(dir);const targetWorld=camera.position.clone().add(dir.multiplyScalar(3.3));const target=parent.worldToLocal(targetWorld.clone());const targetQuat=camera.quaternion.clone();const targetScale=1.42;const startPos=book.position.clone(),startQuat=book.quaternion.clone(),startScale=book.scale.clone();const id=bookId(book);document.documentElement.style.overflow='hidden';setPanel(id,true);animating=true;let t0=performance.now();
+    function tick(now){if(!opened||opened.group!==book){animating=false;return}const t=Math.min(1,(now-t0)/850),e=ease(t);book.position.lerpVectors(startPos,target,e);book.quaternion.slerpQuaternions(startQuat,targetQuat,e);book.scale.lerpVectors(startScale,new THREE.Vector3(targetScale,targetScale,targetScale),e);const o=e;book.frontPivot.rotation.y=-2.92*o;book.pages.children.forEach((p,i)=>{const u=i/(book.pages.children.length-1);p.position.x=(u-.5)*.72*o;p.position.z=.02+i*.004+Math.sin(u*Math.PI)*.18*o;p.rotation.y=(u-.5)*.42*o});book.glow.intensity=2.8*o;if(t<1)raf=requestAnimationFrame(tick);else animating=false}
+    raf=requestAnimationFrame(tick);
+  }
+  function hit(ev){if(animating)return;const r=canvas.getBoundingClientRect();pointer.x=((ev.clientX-r.left)/r.width)*2-1;pointer.y=-((ev.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(scene.children,true);let book=null;for(const h of hits){book=findBook(h.object);if(book)break}if(book){if(opened&&opened.group===book)stop();else animateBook(book,true)}}
+  canvas.addEventListener('pointerup',hit,{passive:true});
+  document.addEventListener('pointerup',e=>{if(opened&&e.target!==canvas&&e.target.closest&&e.target.closest('.vault-ui')){const id=e.target.closest('.vault-ui').id;if(id===bookId(opened.group))stop()}},{passive:true});
+})();
+</script>
 </body>
 </html>
