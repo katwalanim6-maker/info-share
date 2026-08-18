@@ -1,4 +1,4 @@
-/* ANIM OS — cinematic automatic hello sequence */
+/* ANIM OS — refined handwritten hello sequence */
 (() => {
   'use strict';
 
@@ -12,15 +12,16 @@
     const word = intro.querySelector('.anim-word');
     const logo = intro.querySelector('.anim-logo');
 
-    // Give the browser a frame so the initial hidden SVG state is painted first.
+    // Keep the entire stage pure black while the handwritten mark is drawn.
     requestAnimationFrame(() => {
       script?.classList.add('play');
-      window.setTimeout(() => letters && (letters.style.opacity = '1'), 2050);
-      window.setTimeout(() => word?.classList.add('collapsing'), 3550);
-      window.setTimeout(() => logo?.classList.add('reveal'), 4050);
+      window.setTimeout(() => letters && (letters.style.opacity = '1'), 2850);
+      window.setTimeout(() => word?.classList.add('collapsing'), 4050);
+      window.setTimeout(() => logo?.classList.add('reveal'), 5000);
     });
 
-    // The logo gets its own hero moment, then the entire intro dissolves into the site.
+    // Logo gets a full 2-second hero hold before the website appears.
+    // 5.0s reveal start + 2.0s hold + 0.8s fade = 7.8s total.
     window.setTimeout(() => {
       intro.classList.add('is-exiting');
       window.setTimeout(() => {
@@ -32,10 +33,13 @@
           if (typeof window.initNarrativeWorld === 'function') window.initNarrativeWorld();
           if (window.ScrollTrigger) window.ScrollTrigger.refresh();
         });
-      }, 900);
-    }, 5550);
+      }, 800);
+    }, 7000);
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
-  else start();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
 })();
