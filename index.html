@@ -37,32 +37,5 @@
 <script src="script.js"></script>
 <script src="bookshelf-room.js"></script>
 <script src="anim-intro.js"></script>
-<script>
-(() => {
-  'use strict';
-  const canvas=document.getElementById('story-canvas');
-  if(!canvas||!window.THREE)return;
-  canvas.style.pointerEvents='auto';
-  const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2();
-  let opened=null, animating=false, raf=0;
-  const ids=['profile','projects','contact','ai-section','future'];
-  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-  function findBook(obj){while(obj){if(obj.anchor&&obj.frontPivot&&obj.pages)return obj;obj=obj.parent}return null}
-  function bookId(book){let best=0,d=Infinity;const xy=[[-10,8.25],[-3.5,3.35],[3.45,-1.55],[10,5.8],[2.1,10.7]];xy.forEach((p,i)=>{const q=(book.position.x-p[0])**2+(book.position.y-p[1])**2;if(q<d){d=q;best=i}});return ids[best]}
-  function setPanel(id,on){ids.slice(0,4).forEach(x=>{const e=document.getElementById(x);if(!e)return;e.style.opacity=on&&x===id?'1':'0';e.style.pointerEvents=on&&x===id?'auto':'none';if(on&&x===id){e.style.left='50%';e.style.top='50%';e.style.transform='translate(-50%,-50%) scale(1)';e.style.filter='none'}})}
-  function stop(){cancelAnimationFrame(raf);animating=false;document.documentElement.style.overflow='';if(opened){opened.group.position.copy(opened.homePos);opened.group.quaternion.copy(opened.homeQuat);opened.group.scale.copy(opened.homeScale);opened.frontPivot.rotation.y=0;opened.pages.children.forEach((p,i)=>{const t=i/(opened.pages.children.length-1);p.position.set(0,0,.02+i*.004);p.rotation.y=0});opened.glow.intensity=0}setPanel('',false);opened=null}
-  function animateBook(book,opening){
-    if(animating)stop();
-    if(!opening){stop();return}
-    opened={group:book,frontPivot:book.frontPivot,pages:book.pages,glow:book.glow,homePos:book.position.clone(),homeQuat:book.quaternion.clone(),homeScale:book.scale.clone()};
-    const parent=book.parent;const dir=new THREE.Vector3();camera.getWorldDirection(dir);const targetWorld=camera.position.clone().add(dir.multiplyScalar(3.3));const target=parent.worldToLocal(targetWorld.clone());const targetQuat=camera.quaternion.clone();const targetScale=1.42;const startPos=book.position.clone(),startQuat=book.quaternion.clone(),startScale=book.scale.clone();const id=bookId(book);document.documentElement.style.overflow='hidden';setPanel(id,true);animating=true;let t0=performance.now();
-    function tick(now){if(!opened||opened.group!==book){animating=false;return}const t=Math.min(1,(now-t0)/850),e=ease(t);book.position.lerpVectors(startPos,target,e);book.quaternion.slerpQuaternions(startQuat,targetQuat,e);book.scale.lerpVectors(startScale,new THREE.Vector3(targetScale,targetScale,targetScale),e);const o=e;book.frontPivot.rotation.y=-2.92*o;book.pages.children.forEach((p,i)=>{const u=i/(book.pages.children.length-1);p.position.x=(u-.5)*.72*o;p.position.z=.02+i*.004+Math.sin(u*Math.PI)*.18*o;p.rotation.y=(u-.5)*.42*o});book.glow.intensity=2.8*o;if(t<1)raf=requestAnimationFrame(tick);else animating=false}
-    raf=requestAnimationFrame(tick);
-  }
-  function hit(ev){if(animating)return;const r=canvas.getBoundingClientRect();pointer.x=((ev.clientX-r.left)/r.width)*2-1;pointer.y=-((ev.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(scene.children,true);let book=null;for(const h of hits){book=findBook(h.object);if(book)break}if(book){if(opened&&opened.group===book)stop();else animateBook(book,true)}}
-  canvas.addEventListener('pointerup',hit,{passive:true});
-  document.addEventListener('pointerup',e=>{if(opened&&e.target!==canvas&&e.target.closest&&e.target.closest('.vault-ui')){const id=e.target.closest('.vault-ui').id;if(id===bookId(opened.group))stop()}},{passive:true});
-})();
-</script>
 </body>
 </html>
