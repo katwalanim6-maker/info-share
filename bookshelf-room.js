@@ -1,57 +1,200 @@
-/* ANIM OS — KNOWLEDGE VAULT v2
- * Cinematic black library: books live on shelves, fly forward, open wide,
- * and the corresponding DOM content is clipped INSIDE one open page.
+/* ANIM OS — INTERACTIVE 3D LIBRARY
+ * The bookshelf is the environment. Hero books live at fixed shelf coordinates,
+ * fly from those exact coordinates toward the camera, open, reveal a DOM panel
+ * inside the right-hand page, then close and return to their shelf.
  */
 (() => {
 'use strict';
-const T=window.THREE,canvas=document.getElementById('story-canvas'),main=document.getElementById('main');
-if(!T||!canvas||!main||window.__animKnowledgeVault)return; window.__animKnowledgeVault=true;
+const T=window.THREE, canvas=document.getElementById('story-canvas'), main=document.getElementById('main');
+if(!T||!canvas||!main||window.__animKnowledgeLibrary)return;
+window.__animKnowledgeLibrary=true;
+
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
-const ease=v=>v<.5?4*v*v*v:1-Math.pow(-2*v+2,3)/2;
-const range=(v,a,b)=>ease(clamp((v-a)/(b-a)));
-const style=document.createElement('style'); style.textContent=`
-html,body,#main{background:#000!important}#story-canvas{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:0!important;background:#000!important}
-#main{min-height:900vh!important;background:transparent!important}.#main .container{min-height:900vh!important}
-#main .container{position:relative!important;height:900vh!important;z-index:3!important;pointer-events:none!important;padding:0!important;margin:0!important;max-width:none!important}
-#main .container>section.vault-ui{position:fixed!important;left:50%!important;top:50%!important;width:min(700px,calc(100vw - 34px))!important;height:min(390px,55vh)!important;max-height:none!important;overflow:hidden!important;z-index:20!important;opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.18);transform-origin:center!important;will-change:transform,opacity,filter!important;border-radius:4px!important}
-.vault-page-mask{position:fixed;inset:0;z-index:19;pointer-events:none}.vault-title{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:8;color:rgba(255,255,255,.4);font:600 9px/1 Arial,sans-serif;letter-spacing:.45em;white-space:nowrap;pointer-events:none}.vault-hint{position:fixed;right:20px;bottom:26px;z-index:8;color:rgba(255,255,255,.28);font:600 8px/1 Arial,sans-serif;letter-spacing:.28em;writing-mode:vertical-rl;pointer-events:none}
-@media(max-width:700px){#main,.#main .container{min-height:1100vh!important;height:1100vh!important}#main .container{height:1100vh!important}.#main .container>section.vault-ui{width:calc(100vw - 50px)!important;height:min(330px,58vh)!important}.vault-title{font-size:7px;top:15px}.vault-hint{right:8px}}
-`;document.head.appendChild(style);
-const ids=['profile','projects','contact','ai-section'];ids.forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('vault-ui')});
-const title=document.createElement('div');title.className='vault-title';title.textContent='ANIM OS  •  KNOWLEDGE VAULT';document.body.appendChild(title);
-const hint=document.createElement('div');hint.className='vault-hint';hint.textContent='SCROLL TO EXPLORE';document.body.appendChild(hint);
+const smooth=v=>v*v*(3-2*v);
+const cubic=v=>v<.5?4*v*v*v:1-Math.pow(-2*v+2,3)/2;
+const between=(v,a,b)=>cubic(clamp((v-a)/(b-a)));
 const mobile=matchMedia('(max-width:700px)').matches;
-const renderer=new T.WebGLRenderer({canvas,antialias:!mobile,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,mobile?1.2:1.5));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.92;
-const scene=new T.Scene();scene.background=new T.Color(0x000000);scene.fog=new T.FogExp2(0x000000,.027);const camera=new T.PerspectiveCamera(48,innerWidth/innerHeight,.1,140);const world=new T.Group();scene.add(world);
-// Deep black library architecture.
-const library=new T.Group();library.position.z=-17;world.add(library);const wood=new T.MeshStandardMaterial({color:0x16100d,roughness:.62,metalness:.12}),darkWood=new T.MeshStandardMaterial({color:0x080706,roughness:.82}),edge=new T.MeshStandardMaterial({color:0x59616a,roughness:.25,metalness:.72});
-const floor=new T.Mesh(new T.PlaneGeometry(52,70),new T.MeshStandardMaterial({color:0x010101,roughness:.96}));floor.rotation.x=-Math.PI/2;floor.position.set(0,-4,7);world.add(floor);
-const back=new T.Mesh(new T.PlaneGeometry(52,34),darkWood);back.position.set(0,6,-18);library.add(back);
-// Tall shelving towers, clearly visible but kept dark.
-for(let x=-14;x<=14;x+=7){const tower=new T.Group();tower.position.x=x;library.add(tower);const sideL=new T.Mesh(new T.BoxGeometry(.32,22,1.2),wood);sideL.position.x=-3.25;tower.add(sideL);const sideR=sideL.clone();sideR.position.x=3.25;tower.add(sideR);for(let r=0;r<9;r++){const y=-3.5+r*2.35;const plank=new T.Mesh(new T.BoxGeometry(6.8,.22,1.15),wood);plank.position.y=y;tower.add(plank);const trim=new T.Mesh(new T.BoxGeometry(6.8,.045,.1),edge);trim.position.set(0,y+.14,.57);tower.add(trim)}}
-// Filler books are physically packed into the shelves.
-const fillerGeo=new T.BoxGeometry(.34,1.72,.78),fillerMat=new T.MeshStandardMaterial({color:0x292a2c,roughness:.66,metalness:.12});const count=mobile?180:360,filler=new T.InstancedMesh(fillerGeo,fillerMat,count),dummy=new T.Object3D();for(let i=0;i<count;i++){const shelfRow=i%9,tower=Math.floor(i/Math.max(1,Math.ceil(count/9*1/5))),col=i%5;const x=-14+tower*7-2.65+col*1.28+(Math.random()-.5)*.2;dummy.position.set(x,-2.55+shelfRow*2.35,-16.25+(Math.random()-.5)*.06);dummy.rotation.z=(Math.random()-.5)*.055;dummy.scale.set(.72+Math.random()*.5,.72+Math.random()*.48,.86+Math.random()*.18);dummy.updateMatrix();filler.setMatrixAt(i,dummy.matrix)}filler.instanceMatrix.needsUpdate=true;library.add(filler);
-// Shelf pools of warm light keep the library readable without changing the black mood.
-for(let x=-14;x<=14;x+=7){const lamp=new T.PointLight(0xffd8a0,.9,7,2);lamp.position.set(x,4,-13);library.add(lamp)}
-scene.add(new T.HemisphereLight(0x29313b,0x000000,.28));const key=new T.PointLight(0xffffff,2.2,32,1.7);key.position.set(0,4,-4);world.add(key);const rim=new T.PointLight(0x6b8cff,1.25,25,2);rim.position.set(-10,3,-10);world.add(rim);
-const dustCount=mobile?90:220,pos=new Float32Array(dustCount*3);for(let i=0;i<dustCount;i++){pos[i*3]=(Math.random()-.5)*30;pos[i*3+1]=-3+Math.random()*15;pos[i*3+2]=-1-Math.random()*27}const dg=new T.BufferGeometry();dg.setAttribute('position',new T.BufferAttribute(pos,3));world.add(new T.Points(dg,new T.PointsMaterial({color:0xb6c0ca,size:.045,transparent:true,opacity:.22,depthWrite:false})));
-class HeroBook{constructor(cfg){this.base=cfg.pos.clone();this.group=new T.Group();this.group.position.copy(this.base);library.add(this.group);const cover=new T.MeshStandardMaterial({color:cfg.color,roughness:.22,metalness:.42,emissive:cfg.color,emissiveIntensity:.06}),paper=new T.MeshStandardMaterial({color:0xf3efe4,roughness:.7,side:T.DoubleSide}),inside=new T.MeshStandardMaterial({color:0xe7e1d5,roughness:.8}),silver=new T.MeshStandardMaterial({color:0xbfc8d1,roughness:.16,metalness:.92});
-this.back=new T.Mesh(new T.BoxGeometry(3.55,5.25,.18),cover);this.group.add(this.back);
-this.pages=new T.Group();this.pages.position.z=.2;this.group.add(this.pages);for(let i=0;i<24;i++){const p=new T.Mesh(new T.PlaneGeometry(3.3,5.02),i===12?inside:paper);p.position.z=i*.008;this.pages.add(p)}
-this.frontPivot=new T.Group();this.frontPivot.position.set(-1.76,0,.34);this.group.add(this.frontPivot);this.front=new T.Mesh(new T.BoxGeometry(3.55,5.25,.18),cover);this.front.position.x=1.76;this.frontPivot.add(this.front);this.spine=new T.Mesh(new T.BoxGeometry(.2,5.4,.3),silver);this.spine.position.set(-1.67,0,.15);this.group.add(this.spine);
-this.titleBand=new T.Mesh(new T.BoxGeometry(2.15,.07,.05),silver);this.titleBand.position.set(1.76,-.62,.44);this.frontPivot.add(this.titleBand);
-// Anchor is centered on the RIGHT page: DOM is clipped to this page's rectangle by a CSS clip-path.
-this.anchor=new T.Object3D();this.anchor.position.set(.82,.02,.49);this.group.add(this.anchor);this.glow=new T.PointLight(cfg.color,0,9,2);this.group.add(this.glow)}
-update(extract,open,returning){const e=ease(extract),o=ease(open),r=ease(returning);this.group.position.x=this.base.x+Math.sin(e*Math.PI)*.3;this.group.position.y=this.base.y+Math.sin(e*Math.PI)*.16;this.group.position.z=this.base.z+e*(1-r)*9;this.group.scale.setScalar(1+e*.48*(1-r));this.group.rotation.y=e*.08;this.group.rotation.x=Math.sin(e*Math.PI)*-.045;this.frontPivot.rotation.y=-o*2.72;this.pages.children.forEach((p,i)=>{const t=i/(this.pages.children.length-1);p.position.x=(t-.5)*o*.7;p.rotation.y=(t-.5)*o*.34;p.position.z=.02+i*.006+Math.sin(t*Math.PI)*o*.2});this.glow.intensity=o*2.2}}
-const configs=[{id:'profile',pos:new T.Vector3(-8,-1.1,0),color:0x1687ff},{id:'projects',pos:new T.Vector3(-4,1.25,0),color:0x19c86a},{id:'contact',pos:new T.Vector3(0,-1.1,0),color:0xff3038},{id:'ai-section',pos:new T.Vector3(4,1.25,0),color:0xffd21c},{id:'future',pos:new T.Vector3(8,-1.1,0),color:0x1687ff}],books=configs.map(c=>new HeroBook(c));
-// Camera approaches the shelves instead of presenting a floating black void.
-const cameraPath=new T.CatmullRomCurve3([new T.Vector3(0,3.2,29),new T.Vector3(-3,2.5,20),new T.Vector3(2,2.1,12),new T.Vector3(-5,1.7,7),new T.Vector3(-8,1.15,3.2),new T.Vector3(-3,.95,3),new T.Vector3(1,1.1,3),new T.Vector3(5,1.45,3),new T.Vector3(8,1.15,3),new T.Vector3(0,2.6,16)]);
-const targets=[new T.Vector3(0,0,-17),new T.Vector3(-8,-.4,-17),new T.Vector3(-4,.8,-17),new T.Vector3(0,-.4,-17),new T.Vector3(4,.8,-17),new T.Vector3(8,-.4,-17),new T.Vector3(0,2,-17)];
-function positionPopup(el,book,visible){if(!el)return;const a=book.anchor.getWorldPosition(new T.Vector3()).project(camera);const x=(a.x*.5+.5)*innerWidth,y=(-a.y*.5+.5)*innerHeight;el.style.left=`${x}px`;el.style.top=`${y}px`;el.style.transform=`translate(-50%,-50%) scale(${visible})`;
-// Clip the HTML content to a single page. The panel's center is aligned to the right-page anchor.
-el.style.clipPath='inset(0 0 0 0 round 4px)';el.style.webkitClipPath='inset(0 0 0 0 round 4px)';}
-function setPopup(active,book,local){ids.forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;if(i===active){const reveal=range(local,.22,.43),hold=range(local,.43,.67),hide=range(local,.67,.88);const vis=Math.max(0,Math.min(1,reveal,1-hide));el.style.opacity=vis;el.style.filter=`blur(${12*(1-Math.max(reveal,hold))}px)`;positionPopup(el,book,.2+.8*Math.max(reveal,hold)*(1-hide));el.style.pointerEvents=vis>.75?'auto':'none'}else{el.style.opacity=0;el.style.pointerEvents='none';el.style.transform='translate(-50%,-50%) scale(.2)'}})}
-let progress=0,target=0;const readScroll=()=>{const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);target=clamp(scrollY/max)};addEventListener('scroll',readScroll,{passive:true});readScroll();
-function frame(){progress+=(target-progress)*.075;const p=progress,pos=cameraPath.getPointAt(p);camera.position.lerp(pos,.095);const ti=p*(targets.length-1),a=Math.floor(ti),b=Math.min(targets.length-1,a+1),q=ti-a,look=targets[a].clone().lerp(targets[b],q);camera.lookAt(look);const zones=[.09,.29,.49,.69];let active=-1;books.forEach((book,i)=>{if(i>=4){book.update(0,0,1);return}const local=clamp((p-(zones[i]-.075))/.22),extract=range(local,0,.22),open=range(local,.20,.43),returning=range(local,.69,1);book.update(extract,open,returning);if(local>.07&&local<.93)active=i});if(active>=0)setPopup(active,books[active],clamp((p-(zones[active]-.075))/.22));else ids.forEach(id=>{const e=document.getElementById(id);if(e){e.style.opacity=0;e.style.pointerEvents='none'}});renderer.render(scene,camera);requestAnimationFrame(frame)}
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,matchMedia('(max-width:700px)').matches?1.2:1.5));renderer.setSize(innerWidth,innerHeight)},{passive:true});frame();
+
+/* DOM staging: content is kept small enough to sit on one physical page. */
+const css=document.createElement('style');
+css.textContent=`
+html,body,#main{background:transparent!important}
+#story-canvas{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:0!important;background:#050403!important;display:block!important}
+#main{position:relative!important;min-height:1000vh!important;background:transparent!important}
+#main .container{position:relative!important;height:1000vh!important;min-height:1000vh!important;max-width:none!important;margin:0!important;padding:0!important;z-index:4!important;pointer-events:none!important}
+#main .container>section.vault-ui{position:fixed!important;left:50%!important;top:50%!important;width:min(330px,40vw)!important;height:min(240px,43vh)!important;max-height:none!important;margin:0!important;overflow:hidden!important;z-index:25!important;opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.15);transform-origin:center!important;will-change:transform,opacity,filter!important;border-radius:3px!important}
+.vault-ui *{max-width:100%!important}.vault-ui .project-grid{gap:5px!important}.vault-ui .contact-card{padding:6px!important}.vault-ui .utility-row{gap:5px!important}.vault-ui h1{font-size:clamp(22px,2.2vw,34px)!important}.vault-ui h2{font-size:clamp(18px,2vw,28px)!important}.vault-ui p{font-size:clamp(9px,1vw,13px)!important}.vault-ui .profile{width:62px!important;height:62px!important}
+.vault-title{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:12;color:rgba(255,255,255,.55);font:700 9px/1 Arial,sans-serif;letter-spacing:.5em;white-space:nowrap;pointer-events:none;text-shadow:0 1px 10px #000}.vault-hint{position:fixed;right:18px;bottom:24px;z-index:12;color:rgba(255,255,255,.45);font:700 8px/1 Arial,sans-serif;letter-spacing:.25em;writing-mode:vertical-rl;pointer-events:none;text-shadow:0 1px 10px #000}
+@media(max-width:700px){#main,#main .container{height:1150vh!important;min-height:1150vh!important}#main .container>section.vault-ui{width:min(290px,74vw)!important;height:min(210px,43vh)!important}.vault-title{top:13px;font-size:7px}.vault-hint{right:7px;font-size:7px}}
+`;
+document.head.appendChild(css);
+['profile','projects','contact','ai-section'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('vault-ui')});
+const title=document.createElement('div');title.className='vault-title';title.textContent='ANIM OS  •  THE LIBRARY';document.body.appendChild(title);
+const hint=document.createElement('div');hint.className='vault-hint';hint.textContent='SCROLL';document.body.appendChild(hint);
+
+const renderer=new T.WebGLRenderer({canvas,antialias:!mobile,alpha:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,mobile?1.15:1.5));renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+const scene=new T.Scene();scene.background=new T.Color(0x080706);scene.fog=new T.Fog(0x080706,22,62);
+const camera=new T.PerspectiveCamera(50,innerWidth/innerHeight,.1,100);
+const world=new T.Group();scene.add(world);
+
+/* ---------------- THE LIBRARY ---------------- */
+const library=new T.Group();library.position.z=-19;world.add(library);
+const wood=new T.MeshStandardMaterial({color:0x4b2c1b,roughness:.7,metalness:.06});
+const darkWood=new T.MeshStandardMaterial({color:0x17100c,roughness:.82});
+const shelfEdge=new T.MeshStandardMaterial({color:0x8b5b35,roughness:.5,metalness:.08});
+const brass=new T.MeshStandardMaterial({color:0x8c7652,roughness:.25,metalness:.65});
+const floorMat=new T.MeshStandardMaterial({color:0x100c09,roughness:.9});
+
+// Back wall, floor, ceiling and side walls give the camera real room depth.
+const back=new T.Mesh(new T.PlaneGeometry(58,38),darkWood);back.position.set(0,6,-1.2);library.add(back);
+const floor=new T.Mesh(new T.PlaneGeometry(58,55),floorMat);floor.rotation.x=-Math.PI/2;floor.position.set(0,-5,9);library.add(floor);
+const ceiling=new T.Mesh(new T.PlaneGeometry(58,55),darkWood);ceiling.rotation.x=Math.PI/2;ceiling.position.set(0,17,7);library.add(ceiling);
+const leftWall=new T.Mesh(new T.PlaneGeometry(55,30),darkWood);leftWall.rotation.y=Math.PI/2;leftWall.position.set(-29,6,6);library.add(leftWall);
+const rightWall=leftWall.clone();rightWall.rotation.y=-Math.PI/2;rightWall.position.x=29;library.add(rightWall);
+
+// Five tall shelving bays, matching the dense organised reference image.
+const bayXs=[-14,-7,0,7,14];
+for(const x of bayXs){
+  const bay=new T.Group();bay.position.x=x;library.add(bay);
+  for(const sx of [-3.25,3.25]){const post=new T.Mesh(new T.BoxGeometry(.34,23,1.15),wood);post.position.set(sx,6,-.05);bay.add(post)}
+  for(let row=0;row<9;row++){
+    const y=-4.0+row*2.45;
+    const plank=new T.Mesh(new T.BoxGeometry(6.8,.28,1.35),wood);plank.position.set(0,y,0);bay.add(plank);
+    const front=new T.Mesh(new T.BoxGeometry(6.8,.065,.14),shelfEdge);front.position.set(0,y+.16,.68);bay.add(front);
+    const glow=new T.PointLight(0xffc27b,.35,5,2);glow.position.set(0,y+.55,.1);bay.add(glow);
+  }
+  const top=new T.Mesh(new T.BoxGeometry(7.0,.5,1.45),wood);top.position.set(0,17,0);bay.add(top);
+}
+
+// Organised filler books: multiple muted colours, slight height/lean variation, always seated on shelves.
+const palette=[0x2d2520,0x173a36,0x43232a,0x5a3b22,0x26303d,0x3c3b28,0x51423a,0x1c2624];
+const booksByColor=palette.map(c=>new T.InstancedMesh(new T.BoxGeometry(1,1,1),new T.MeshStandardMaterial({color:c,roughness:.72,metalness:.05}),mobile?45:85));
+const d=new T.Object3D();
+let seed=7919;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+booksByColor.forEach((mesh,mi)=>{let n=0;for(let row=0;row<9&&n<mesh.count;row++){
+  const y=-3.05+row*2.45;
+  for(let bay=0;bay<5&&n<mesh.count;bay++){
+    const x=bayXs[bay]-2.85;
+    const perBay=3+Math.floor(rnd()*3);
+    for(let j=0;j<perBay&&n<mesh.count;j++){
+      const xx=x+j*1.2+rnd()*.16;const h=1.5+rnd()*.5;const w=.48+rnd()*.42;
+      d.position.set(xx,y+h/2,-.12+(rnd()-.5)*.12);d.rotation.set(0,(rnd()-.5)*.035,(rnd()-.5)*.06);d.scale.set(w,h,.82+rnd()*.16);d.updateMatrix();mesh.setMatrixAt(n++,d.matrix);
+    }
+  }
+}mesh.instanceMatrix.needsUpdate=true;library.add(mesh)});
+
+// Decorative ladder rails / metal details create the deep library silhouette.
+for(const x of bayXs){const rail=new T.Mesh(new T.BoxGeometry(6.9,.06,.06),brass);rail.position.set(x,15.9,.72);library.add(rail)}
+
+/* Lighting: warm shelf lamps + cool camera rim. The library remains readable, not black. */
+scene.add(new T.HemisphereLight(0xffe2c2,0x0b1017,.7));
+const warm=new T.PointLight(0xffb56a,3.2,28,1.6);warm.position.set(0,7,8);world.add(warm);
+const cool=new T.PointLight(0x668cff,2.2,25,1.8);cool.position.set(0,2,10);world.add(cool);
+const cameraLight=new T.PointLight(0xffe3bf,1.4,13,2);world.add(cameraLight);
+
+// Dust particles move subtly with camera travel.
+const dustN=mobile?80:190,dustPos=new Float32Array(dustN*3);for(let i=0;i<dustN;i++){dustPos[i*3]=(rnd()-.5)*45;dustPos[i*3+1]=-4+rnd()*20;dustPos[i*3+2]=-4-rnd()*32}
+const dustGeo=new T.BufferGeometry();dustGeo.setAttribute('position',new T.BufferAttribute(dustPos,3));world.add(new T.Points(dustGeo,new T.PointsMaterial({color:0xe4d5c2,size:.055,transparent:true,opacity:.28,depthWrite:false})));
+
+/* ---------------- HERO BOOKS ---------------- */
+class HeroBook{
+ constructor(cfg){
+  this.id=cfg.id;this.base=cfg.pos.clone();this.color=cfg.color;this.group=new T.Group();this.group.position.copy(this.base);library.add(this.group);
+  const cover=new T.MeshStandardMaterial({color:cfg.color,roughness:.2,metalness:.45,emissive:cfg.color,emissiveIntensity:.045});
+  const pageMat=new T.MeshStandardMaterial({color:0xf1eadb,roughness:.8,side:T.DoubleSide});
+  const pageInner=new T.MeshStandardMaterial({color:0xe6decd,roughness:.82,side:T.DoubleSide});
+  const metal=new T.MeshStandardMaterial({color:0xc7cbd0,roughness:.18,metalness:.9});
+  this.bookW=3.35;this.bookH=5.15;
+  // Back cover sits exactly where the book lives on the shelf.
+  this.back=new T.Mesh(new T.BoxGeometry(this.bookW,this.bookH,.2),cover);this.group.add(this.back);
+  this.pages=new T.Group();this.pages.position.z=.17;this.group.add(this.pages);
+  for(let i=0;i<26;i++){const page=new T.Mesh(new T.PlaneGeometry(3.12,4.86),i===13?pageInner:pageMat);page.position.z=.01+i*.005;this.pages.add(page)}
+  this.frontPivot=new T.Group();this.frontPivot.position.set(-this.bookW/2,0,.31);this.group.add(this.frontPivot);
+  this.front=new T.Mesh(new T.BoxGeometry(this.bookW,this.bookH,.2),cover);this.front.position.x=this.bookW/2;this.frontPivot.add(this.front);
+  this.spine=new T.Mesh(new T.BoxGeometry(.18,this.bookH+.12,.3),metal);this.spine.position.set(-this.bookW/2+.02,0,.14);this.group.add(this.spine);
+  const stripe=new T.Mesh(new T.BoxGeometry(2.1,.055,.055),metal);stripe.position.set(this.bookW/2,-.72,.43);this.frontPivot.add(stripe);
+  // Right-page anchor. All DOM content is projected here.
+  this.anchor=new T.Object3D();this.anchor.position.set(.78,0,.52);this.group.add(this.anchor);
+  this.glow=new T.PointLight(cfg.color,0,9,2);this.glow.position.set(.4,0,.7);this.group.add(this.glow);
+ }
+ update(extract,open,returning){
+  const e=smooth(clamp(extract)),o=smooth(clamp(open)),r=smooth(clamp(returning));
+  // Start at exact shelf coordinate, then fly forward on Z while slightly lifting.
+  this.group.position.x=this.base.x+Math.sin(e*Math.PI)*.18;
+  this.group.position.y=this.base.y+Math.sin(e*Math.PI)*.12;
+  this.group.position.z=this.base.z+e*10*(1-r);
+  this.group.scale.setScalar(1+e*.55*(1-r));
+  this.group.rotation.y=(1-e)*this.shelfRotation+e*.03;
+  this.group.rotation.x=Math.sin(e*Math.PI)*-.06;
+  // Cover swings open from the spine. Pages visibly fan.
+  this.frontPivot.rotation.y=-o*2.92;
+  this.pages.children.forEach((p,i)=>{const t=i/(this.pages.children.length-1);p.position.x=(t-.5)*o*.72;p.rotation.y=(t-.5)*o*.42;p.position.z=.02+i*.004+Math.sin(t*Math.PI)*o*.18});
+  this.glow.intensity=o*2.8;
+ }
+}
+
+// Fixed shelf coordinates: these are the places the hero books ALWAYS return to.
+const configs=[
+ {id:'profile',pos:new T.Vector3(-10,8.15,.28),color:0x197cff,rot:.015},
+ {id:'projects',pos:new T.Vector3(-3.5,3.25,.28),color:0x19bd67,rot:-.025},
+ {id:'contact',pos:new T.Vector3(3.45,-1.65,.28),color:0xff3040,rot:.02},
+ {id:'ai-section',pos:new T.Vector3(10,5.7,.28),color:0xffcf21,rot:-.018},
+ {id:'future',pos:new T.Vector3(2.1,10.6,.28),color:0x2588ff,rot:.028}
+];
+const heroes=configs.map(c=>{const b=new HeroBook(c);b.shelfRotation=c.rot;return b});
+
+/* ---------------- CINEMATIC CAMERA ---------------- */
+// The camera begins in front of the complete library, then travels between shelf coordinates.
+const path=new T.CatmullRomCurve3([
+ new T.Vector3(0,3.3,22),new T.Vector3(-5,4.2,15),new T.Vector3(-9,7.0,8),
+ new T.Vector3(-3.5,3.8,8),new T.Vector3(3.5,-.8,8),new T.Vector3(10,5.1,8),
+ new T.Vector3(2.1,9.8,8),new T.Vector3(0,4.0,19)
+],false,'catmullrom',.35);
+const lookPath=new T.CatmullRomCurve3([
+ new T.Vector3(0,5,-19),new T.Vector3(-10,8.1,-19),new T.Vector3(-3.5,3.25,-19),
+ new T.Vector3(3.45,-1.65,-19),new T.Vector3(10,5.7,-19),new T.Vector3(2.1,10.6,-19),new T.Vector3(0,4,-19)
+],false,'catmullrom',.35);
+
+function projectAnchor(book){
+ const v=book.anchor.getWorldPosition(new T.Vector3()).project(camera);
+ return {x:(v.x*.5+.5)*innerWidth,y:(-v.y*.5+.5)*innerHeight};
+}
+function popupFor(book,local,activeIndex){
+ const reveal=between(local,.25,.45),hold=between(local,.45,.68),close=between(local,.70,.9);const visible=Math.max(0,Math.min(1,Math.max(reveal,hold)*(1-close)));
+ const el=document.getElementById(book.id);if(!el)return;
+ const p=projectAnchor(book);el.style.left=`${p.x}px`;el.style.top=`${p.y}px`;el.style.opacity=visible;
+ el.style.transform=`translate(-50%,-50%) scale(${.18+.82*visible})`;el.style.filter=`blur(${10*(1-visible)}px)`;el.style.pointerEvents=visible>.82?'auto':'none';
+ // Single-page mask: clip the UI to a page-shaped rectangle centered on the anchor.
+ el.style.clipPath='inset(0 round 3px)';el.style.webkitClipPath='inset(0 round 3px)';
+ // All other panels remain inert.
+ ['profile','projects','contact','ai-section'].forEach(id=>{if(id!==book.id){const x=document.getElementById(id);if(x){x.style.opacity=0;x.style.pointerEvents='none';x.style.transform='translate(-50%,-50%) scale(.15)'}}});
+}
+function hidePopups(){['profile','projects','contact','ai-section'].forEach(id=>{const e=document.getElementById(id);if(e){e.style.opacity=0;e.style.pointerEvents='none'}})}
+
+let targetScroll=0,progress=0;
+function readScroll(){const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);targetScroll=clamp(scrollY/max)}
+addEventListener('scroll',readScroll,{passive:true});readScroll();
+
+function frame(){
+ progress+=(targetScroll-progress)*.075;const p=progress;
+ const cp=path.getPointAt(p);camera.position.lerp(cp,.11);
+ const lp=lookPath.getPointAt(p);camera.lookAt(lp);
+ cameraLight.position.copy(camera.position);
+ // Each hero owns a 16% scroll chapter. The fifth is a visual finale without a DOM panel.
+ const starts=[.055,.245,.435,.625,.815];let active=-1;
+ heroes.forEach((book,i)=>{
+  const local=clamp((p-(starts[i]-.055))/.19);
+  const extract=between(local,0,.23);
+  const open=between(local,.20,.48);
+  const returning=between(local,.68,1);
+  book.update(extract,open,returning);
+  if(local>.05&&local<.96)active=i;
+ });
+ if(active>=0&&active<4)popupFor(heroes[active],clamp((p-(starts[active]-.055))/.19),active);else hidePopups();
+ renderer.render(scene,camera);requestAnimationFrame(frame);
+}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,matchMedia('(max-width:700px)').matches?1.15:1.5));renderer.setSize(innerWidth,innerHeight)},{passive:true});
+frame();
 })();
