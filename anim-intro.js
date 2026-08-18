@@ -1,4 +1,4 @@
-/* ANIM OS — handwritten write → deconstruct → A morph → logo */
+/* ANIM OS — cinematic title sequence */
 (() => {
   'use strict';
   const start = () => {
@@ -8,25 +8,16 @@
     const script = intro.querySelector('.anim-script');
     const a = intro.querySelector('.transition-a');
     const logo = intro.querySelector('.anim-logo');
-
-    requestAnimationFrame(() => script?.classList.add('play'));
-
-    // 3.55s: the whole handwritten word is pulled inward and deconstructed.
-    window.setTimeout(() => intro.classList.add('deconstructing'), 3550);
-
-    // 4.25s: a clean handwritten A emerges from the collapsing word and lands center.
-    window.setTimeout(() => a?.classList.add('extract'), 4250);
-
-    // 4.85s: the temporary handwritten A dissolves while the real A logo grows through it.
-    window.setTimeout(() => {
-      a?.classList.add('dissolve');
-      logo?.classList.add('reveal');
-    }, 4850);
-
-    // The finished logo is then alone on pure black for 2 seconds.
-    window.setTimeout(() => {
+    requestAnimationFrame(() => {
+      script?.classList.add('play');
+      setTimeout(() => script?.classList.add('deconstruct'), 3550);
+      setTimeout(() => a?.classList.add('extract'), 3750);
+      setTimeout(() => a?.classList.add('dissolve'), 5000);
+      setTimeout(() => logo?.classList.add('reveal'), 5120);
+    });
+    setTimeout(() => {
       intro.classList.add('is-exiting');
-      window.setTimeout(() => {
+      setTimeout(() => {
         intro.style.display = 'none';
         main.style.display = 'block';
         if (typeof window.startGreeting === 'function') window.startGreeting();
@@ -34,8 +25,8 @@
           if (typeof window.initNarrativeWorld === 'function') window.initNarrativeWorld();
           if (window.ScrollTrigger) window.ScrollTrigger.refresh();
         });
-      }, 800);
-    }, 7900);
+      }, 1000);
+    }, 7200);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else start();
