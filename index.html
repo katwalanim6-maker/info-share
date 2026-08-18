@@ -11,31 +11,50 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="narrative-fix.css">
+<link rel="stylesheet" href="anim-intro.css">
 </head>
 <body>
 <canvas id="story-canvas" aria-hidden="true"></canvas>
 
-<div id="intro" class="intro-stage" role="button" tabindex="0" aria-label="Enter Anim OS">
-  <div class="intro-noise"></div>
-  <div class="intro-orbit intro-orbit-a"></div>
-  <div class="intro-orbit intro-orbit-b"></div>
-  <div class="intro-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="intro-card">
-    <div class="intro-glare"></div>
-    <div class="logo-drop intro-logo">💧</div>
-    <p class="eyebrow intro-eyebrow">DIGITAL IDENTITY</p>
-    <h1>ANIM KATWAL</h1>
-    <p class="intro-subtitle">A digital world is forming.</p>
-    <div class="intro-enter">
-      <span class="intro-enter-dot"></span>
-      <span>Tap anywhere to enter</span>
-      <span class="intro-enter-line"></span>
+<!-- CINEMATIC ANIM OS HELLO -->
+<div id="intro" class="intro-stage anim-hello" aria-label="Anim OS">
+  <div class="anim-hello-bg"></div>
+  <div class="anim-hello-vignette"></div>
+  <div class="anim-hello-stage">
+    <svg class="anim-script" viewBox="0 0 1200 500" aria-hidden="true">
+      <path class="script-soft" d="M125 355 C185 210 270 120 355 125 C410 128 415 190 355 214 C288 241 210 217 182 286 C157 348 245 389 333 345 C430 297 458 164 540 145 C606 130 632 187 593 229 C553 273 468 271 461 333 C454 389 530 393 594 351 C657 311 687 209 758 191 C817 176 845 224 815 264 C783 306 706 307 699 350 C690 402 766 405 836 356 C902 309 926 229 1002 208 C1048 195 1077 226 1050 258 C1021 293 964 292 949 332 C932 377 986 390 1067 335" />
+      <path d="M125 355 C185 210 270 120 355 125 C410 128 415 190 355 214 C288 241 210 217 182 286 C157 348 245 389 333 345 C430 297 458 164 540 145 C606 130 632 187 593 229 C553 273 468 271 461 333 C454 389 530 393 594 351 C657 311 687 209 758 191 C817 176 845 224 815 264 C783 306 706 307 699 350 C690 402 766 405 836 356 C902 309 926 229 1002 208 C1048 195 1077 226 1050 258 C1021 293 964 292 949 332 C932 377 986 390 1067 335" />
+      <path d="M170 365 C330 410 525 410 700 365 C835 331 960 320 1095 350" />
+    </svg>
+
+    <div class="anim-letters" aria-hidden="true">
+      <div class="anim-word"><span>A</span><span>N</span><span>I</span><span>M</span><span>&nbsp;</span><span>O</span><span>S</span></div>
     </div>
+
+    <div class="anim-logo" aria-label="Anim logo">
+      <svg viewBox="0 0 300 300" role="img" aria-label="Anim A logo">
+        <defs>
+          <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffffff"/><stop offset=".22" stop-color="#777"/><stop offset=".48" stop-color="#050505"/><stop offset=".68" stop-color="#e8e8e8"/><stop offset="1" stop-color="#555"/>
+          </linearGradient>
+          <linearGradient id="chrome2" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#333"/><stop offset="1" stop-color="#ddd"/>
+          </linearGradient>
+        </defs>
+        <path class="logo-main" fill="url(#chrome)" d="M148 25 L44 257 L82 257 L108 199 L195 199 L222 257 L260 257 L157 25 Z M151 79 L181 166 L122 166 Z"/>
+        <path class="logo-ring" d="M30 219 C92 170 171 139 270 94 C246 130 217 165 181 191 C130 228 75 245 31 253 C49 244 61 231 67 216"/>
+        <path class="logo-highlight" d="M150 36 L54 247 M157 36 L252 250 M42 251 C112 232 180 197 228 139"/>
+        <path fill="url(#chrome2)" d="M106 192 L194 192 L203 211 L96 211 Z" opacity=".85"/>
+      </svg>
+    </div>
+
+    <div class="anim-line"></div>
+    <div class="anim-caption">ANIM OS&nbsp;&nbsp;•&nbsp;&nbsp; DIGITAL IDENTITY</div>
   </div>
-  <div class="intro-skip">ANIM OS <span>•</span> INITIALIZING WORLD</div>
 </div>
 
-<div id="loading" class="screen-center">
+<!-- Legacy boot kept as a safety fallback, hidden during the cinematic intro. -->
+<div id="loading" class="screen-center" style="display:none!important">
   <div class="liquid-card boot-card">
     <div class="boot-title">ANIM OS</div>
     <div class="line">Initializing...</div>
@@ -51,11 +70,7 @@
 
   <header class="navbar liquid-glass">
     <div class="brand"><span class="brand-icon">💧</span><span>Anim OS</span></div>
-    <nav>
-      <a href="#profile">Profile</a>
-      <a href="#ai-section">AI Anim</a>
-      <a href="#contact">Contact</a>
-    </nav>
+    <nav><a href="#profile">Profile</a><a href="#ai-section">AI Anim</a><a href="#contact">Contact</a></nav>
     <a href="#ai-section" class="liquid-btn small-btn">Talk to AI</a>
   </header>
 
@@ -63,9 +78,7 @@
     <section id="profile" class="hero">
       <div class="status-pill liquid-glass"><span></span> Digital Identity Online</div>
       <div class="profile-wrap"><img src="Profile.png" alt="Anim Katwal" class="profile"></div>
-      <p class="eyebrow">WELCOME TO</p>
-      <h1>Anim Katwal</h1>
-      <h3 id="greeting"></h3>
+      <p class="eyebrow">WELCOME TO</p><h1>Anim Katwal</h1><h3 id="greeting"></h3>
       <p class="bio">Student • Fun Vision • Musician</p>
       <p class="hero-text">A personal space to connect, explore, and talk with AI Anim.</p>
       <a href="#ai-section" class="liquid-btn primary-btn">🤖 Talk with AI Anim</a>
@@ -83,19 +96,10 @@
         <a href="https://www.tiktok.com/@anim.katwal" class="contact-card"><span>🎵</span><div><strong>TikTok</strong><small>@anim.katwal</small></div></a>
         <a href="mailto:katwalanim6@gmail.com" class="contact-card"><span>📧</span><div><strong>Email</strong><small>katwalanim6@gmail.com</small></div></a>
       </div>
-      <div class="utility-row">
-        <button id="shareBtn" class="liquid-btn">📤 Share</button>
-        <button id="copyBtn" class="liquid-btn">📋 Copy Phone</button>
-        <button id="saveBtn" class="liquid-btn">💾 Save Contact</button>
-      </div>
+      <div class="utility-row"><button id="shareBtn" class="liquid-btn">📤 Share</button><button id="copyBtn" class="liquid-btn">📋 Copy Phone</button><button id="saveBtn" class="liquid-btn">💾 Save Contact</button></div>
     </section>
 
-    <section id="ai-section" class="ai-section glass-panel">
-      <div class="section-heading"><span>AI SYSTEM</span><h2>Talk with AI Anim.</h2><p>Ask anything about Anim.</p></div>
-      <div id="chat-box"></div>
-      <div class="chat-input-row"><input type="text" id="user-input" placeholder="Ask AI Anim..." autocomplete="off"><button id="send-btn" class="liquid-btn send-btn">Send</button></div>
-    </section>
-
+    <section id="ai-section" class="ai-section glass-panel"><div class="section-heading"><span>AI SYSTEM</span><h2>Talk with AI Anim.</h2><p>Ask anything about Anim.</p></div><div id="chat-box"></div><div class="chat-input-row"><input type="text" id="user-input" placeholder="Ask AI Anim..." autocomplete="off"><button id="send-btn" class="liquid-btn send-btn">Send</button></div></section>
     <footer>Made with ❤️ by Anim</footer>
   </main>
 </div>
@@ -105,5 +109,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="script.js"></script>
 <script src="cinematic-patch.js"></script>
+<script src="anim-intro.js"></script>
 </body>
 </html>
