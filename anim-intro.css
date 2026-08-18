@@ -2,8 +2,8 @@
 #intro.anim-hello{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:#000;color:#fff;cursor:default;opacity:1;visibility:visible;transition:opacity .9s cubic-bezier(.22,1,.36,1),visibility .9s}
 #intro.anim-hello.is-exiting{opacity:0;visibility:hidden;pointer-events:none}
 .anim-hello-bg{position:absolute;inset:-20%;background:radial-gradient(circle at 50% 48%,rgba(255,255,255,.055),transparent 18%),radial-gradient(circle at 50% 50%,rgba(160,160,160,.025),transparent 42%);animation:animBreath 4s ease-in-out infinite}
-.anim-hello-vignette{position:absolute;inset:0;background:radial-gradient(circle,transparent 35%,rgba(0,0,0,.72) 100%);pointer-events:none}
-.anim-hello-stage{position:relative;width:min(92vw,760px);height:min(72vh,620px);display:grid;place-items:center;perspective:1200px}
+.anim-hello-vignette{position:absolute;inset:0;background:radial-gradient(circle,transparent 32%,rgba(0,0,0,.78) 100%);pointer-events:none}
+.anim-hello-stage{position:relative;width:min(92vw,760px);height:min(72vh,620px);display:grid;place-items:center;perspective:1400px}
 .anim-script{position:absolute;width:min(84vw,690px);height:auto;overflow:visible;filter:drop-shadow(0 0 14px rgba(255,255,255,.08));}
 .anim-script path{fill:none;stroke:#f7f7f7;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2400;stroke-dashoffset:2400;opacity:0}
 .anim-script .script-soft{stroke:#888;stroke-width:12;filter:blur(7px);opacity:0}
@@ -11,24 +11,27 @@
 .anim-script.play .script-soft{animation:helloGlow 2.55s ease forwards}
 .anim-letters{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:scale(1.28);}
 .anim-word{font-family:"Times New Roman",Georgia,serif;font-size:clamp(74px,16vw,150px);font-weight:500;letter-spacing:-.08em;color:#fff;filter:drop-shadow(0 0 22px rgba(255,255,255,.14));}
-.anim-word span{display:inline-block;opacity:0;transform:translateY(35px) scale(.7);}
-.anim-word span:nth-child(1){animation:wordIn .7s 2.15s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(2){animation:wordIn .7s 2.24s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(3){animation:wordIn .7s 2.33s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(4){animation:wordIn .7s 2.42s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(5){animation:wordIn .7s 2.51s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(6){animation:wordIn .7s 2.60s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(7){animation:wordIn .7s 2.69s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(8){animation:wordIn .7s 2.78s cubic-bezier(.16,1,.3,1) forwards}
-.anim-word.collapsing{animation:wordCollapse 1.15s 3.55s cubic-bezier(.77,0,.18,1) forwards}
-.anim-logo{position:absolute;width:clamp(105px,22vw,190px);aspect-ratio:1;opacity:0;transform:scale(.35) rotate(-7deg);filter:drop-shadow(0 0 0 rgba(255,255,255,0));}
-.anim-logo.reveal{animation:logoReveal 1.25s 4.05s cubic-bezier(.16,1,.3,1) forwards}
-.anim-logo svg{width:100%;height:100%;overflow:visible}
-.anim-logo .logo-main{fill:#070707;stroke:#f4f4f4;stroke-width:2.2;stroke-linejoin:round}
-.anim-logo .logo-ring{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;filter:drop-shadow(0 0 5px rgba(255,255,255,.45))}
-.anim-logo .logo-highlight{fill:none;stroke:#999;stroke-width:1.3;opacity:.9}
-.anim-logo::after{content:"";position:absolute;inset:28%;border-radius:50%;background:#fff;filter:blur(22px);opacity:.08;z-index:-1}
+.anim-word span{display:inline-block;opacity:0;transform:translateY(35px) scale(.7);will-change:transform,opacity}
+.anim-word span:nth-child(1){animation:wordIn .7s 2.15s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(2){animation:wordIn .7s 2.24s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(3){animation:wordIn .7s 2.33s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(4){animation:wordIn .7s 2.42s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(5){animation:wordIn .7s 2.51s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(6){animation:wordIn .7s 2.60s cubic-bezier(.16,1,.3,1) forwards}.anim-word span:nth-child(7){animation:wordIn .7s 2.69s cubic-bezier(.16,1,.3,1) forwards}
+.anim-word.collapsing{animation:wordCollapse 1.05s cubic-bezier(.76,0,.18,1) forwards}
+.anim-logo{position:absolute;width:clamp(112px,24vw,205px);aspect-ratio:1;display:grid;place-items:center;opacity:0;transform:scale(.28) rotate(-8deg);will-change:transform,opacity,filter;}
+.anim-logo-image{position:relative;width:100%;height:100%;object-fit:contain;display:block;z-index:2;filter:drop-shadow(0 0 0 rgba(255,255,255,0));will-change:transform,filter}
+.logo-aura{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.28),rgba(255,255,255,.06) 35%,transparent 70%);filter:blur(18px);opacity:0;z-index:0}
+.logo-shine{position:absolute;z-index:3;left:-45%;top:-25%;width:28%;height:150%;transform:rotate(24deg) translateX(-260%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);filter:blur(7px);opacity:0;pointer-events:none;mix-blend-mode:screen}
+.anim-logo.reveal{animation:logoReveal 1.15s cubic-bezier(.16,1,.3,1) forwards}
+.anim-logo.reveal .logo-aura{animation:auraIn .8s .15s ease forwards}
+.anim-logo.reveal .logo-shine{animation:logoShine 1.05s .28s cubic-bezier(.16,1,.3,1) forwards}
 .anim-caption{position:absolute;bottom:7%;left:50%;transform:translateX(-50%);font:600 9px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.48em;color:rgba(255,255,255,.42);white-space:nowrap;opacity:0;animation:captionIn .8s 4.2s ease forwards}
 .anim-line{position:absolute;width:min(58vw,300px);height:1px;bottom:calc(7% + 22px);left:50%;transform:translateX(-50%) scaleX(0);background:linear-gradient(90deg,transparent,#fff,transparent);opacity:.5;animation:lineIn .9s 4.15s cubic-bezier(.16,1,.3,1) forwards}
 @keyframes helloWrite{0%{stroke-dashoffset:2400;opacity:0}8%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
 @keyframes helloGlow{0%{stroke-dashoffset:2400;opacity:0}18%{opacity:.13}100%{stroke-dashoffset:0;opacity:.07}}
 @keyframes wordIn{to{opacity:1;transform:none}}
-@keyframes wordCollapse{0%{opacity:1;transform:scale(1) translateZ(0);letter-spacing:-.08em}100%{opacity:0;transform:scale(.08) translateZ(0);letter-spacing:-.25em}}
-@keyframes logoReveal{0%{opacity:0;transform:scale(.35) rotate(-7deg);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}55%{opacity:1;transform:scale(1.08) rotate(1deg);filter:drop-shadow(0 0 34px rgba(255,255,255,.32))}100%{opacity:1;transform:scale(1) rotate(0);filter:drop-shadow(0 0 18px rgba(255,255,255,.18))}}
+@keyframes wordCollapse{0%{opacity:1;transform:scale(1) translate3d(0,0,0);letter-spacing:-.08em;filter:blur(0)}45%{opacity:1;transform:scale(.48) translate3d(0,0,0);filter:blur(.3px)}100%{opacity:0;transform:scale(.055) translate3d(0,0,0);letter-spacing:-.25em;filter:blur(2px)}}
+@keyframes logoReveal{0%{opacity:0;transform:scale(.28) rotate(-8deg);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}52%{opacity:1;transform:scale(1.1) rotate(1deg);filter:drop-shadow(0 0 42px rgba(255,255,255,.36))}78%{transform:scale(.97) rotate(-.3deg)}100%{opacity:1;transform:scale(1) rotate(0);filter:drop-shadow(0 0 22px rgba(255,255,255,.2))}}
+@keyframes auraIn{from{opacity:0;transform:scale(.55)}to{opacity:.9;transform:scale(1.15)}}
+@keyframes logoShine{0%{opacity:0;transform:rotate(24deg) translateX(-260%)}15%{opacity:.9}100%{opacity:0;transform:rotate(24deg) translateX(600%)}}
 @keyframes captionIn{to{opacity:1}}
 @keyframes lineIn{to{transform:translateX(-50%) scaleX(1)}}
 @keyframes animBreath{50%{transform:scale(1.035);opacity:.72}}
-@media(prefers-reduced-motion:reduce){.anim-script path,.anim-script .script-soft,.anim-word span,.anim-word.collapsing,.anim-logo.reveal,.anim-caption,.anim-line{animation-duration:.01ms!important;animation-delay:0ms!important}.anim-hello-bg{animation:none}}
+@media(max-width:520px){.anim-caption{font-size:7px;letter-spacing:.34em}.anim-script{width:94vw}.anim-logo{width:34vw}}
+@media(prefers-reduced-motion:reduce){.anim-script path,.anim-script .script-soft,.anim-word span,.anim-word.collapsing,.anim-logo.reveal,.anim-caption,.anim-line,.anim-logo.reveal .logo-aura,.anim-logo.reveal .logo-shine{animation-duration:.01ms!important;animation-delay:0ms!important}.anim-hello-bg{animation:none}}
