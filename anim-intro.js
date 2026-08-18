@@ -1,4 +1,4 @@
-/* ANIM OS — handwriting -> deconstruction -> A -> logo */
+/* ANIM OS — handwritten write → deconstruct → A morph → logo */
 (() => {
   'use strict';
   const start = () => {
@@ -9,23 +9,21 @@
     const a = intro.querySelector('.transition-a');
     const logo = intro.querySelector('.anim-logo');
 
-    requestAnimationFrame(() => {
-      // 0.0–3.4s: write Anim OS in white.
-      script?.classList.add('play');
+    requestAnimationFrame(() => script?.classList.add('play'));
 
-      // 3.65s: the finished writing begins breaking down from behind.
-      // The isolated A then emerges from the left side of the word and travels to center.
-      window.setTimeout(() => script?.classList.add('deconstruct'), 3650);
-      window.setTimeout(() => a?.classList.add('form'), 3700);
+    // 3.55s: the whole handwritten word is pulled inward and deconstructed.
+    window.setTimeout(() => intro.classList.add('deconstructing'), 3550);
 
-      // 4.85s: the handwritten A is now centered; dissolve it away.
-      // 5.25s: the real uploaded logo grows out of the disappearing A.
-      window.setTimeout(() => a?.classList.remove('form'), 4850);
-      window.setTimeout(() => a?.classList.add('fade'), 4850);
-      window.setTimeout(() => logo?.classList.add('reveal'), 5050);
-    });
+    // 4.25s: a clean handwritten A emerges from the collapsing word and lands center.
+    window.setTimeout(() => a?.classList.add('extract'), 4250);
 
-    // Real logo is held alone on pure black for ~2 seconds, then the site fades in.
+    // 4.85s: the temporary handwritten A dissolves while the real A logo grows through it.
+    window.setTimeout(() => {
+      a?.classList.add('dissolve');
+      logo?.classList.add('reveal');
+    }, 4850);
+
+    // The finished logo is then alone on pure black for 2 seconds.
     window.setTimeout(() => {
       intro.classList.add('is-exiting');
       window.setTimeout(() => {
@@ -37,7 +35,7 @@
           if (window.ScrollTrigger) window.ScrollTrigger.refresh();
         });
       }, 800);
-    }, 7050);
+    }, 7900);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else start();
