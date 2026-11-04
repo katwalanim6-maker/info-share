@@ -91,3 +91,30 @@ body::after{
 @keyframes cloud-drift-sharp{from{transform:translateX(-5px)}to{transform:translate(7px,5px)}}
 @media(max-width:520px){.cloudscape{opacity:.72}.cloudscape svg{width:145%;left:-22.5%}}
 @media(prefers-reduced-motion:reduce){.cloudscape g{animation:none!important}}
+
+
+/* 65-layer cinematic cloud depth system */
+.cloudscape{opacity:.88;isolation:isolate}
+.cloudscape svg{overflow:visible}
+.cloudscape .cloud-field{animation:none!important}
+.cloudscape .cloud-layer{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:cloud-depth-drift var(--cloud-speed,52s) ease-in-out infinite alternate;
+  animation-delay:var(--cloud-phase,0s);
+  will-change:transform;
+}
+.cloudscape .cloud-layer:nth-child(5n+1){filter:brightness(1.12)}
+.cloudscape .cloud-layer:nth-child(5n+2){filter:brightness(.88) saturate(1.12)}
+.cloudscape .cloud-layer:nth-child(7n){mix-blend-mode:screen}
+@keyframes cloud-depth-drift{
+  0%{transform:translate3d(-9px,2px,0) scale(1)}
+  100%{transform:translate3d(11px,-5px,0) scale(1.018)}
+}
+@media(max-width:520px){
+  .cloudscape{opacity:.84}
+  .cloudscape svg{width:150%;left:-25%;height:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .cloudscape .cloud-layer{animation:none!important;will-change:auto}
+}
