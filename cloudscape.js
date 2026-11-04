@@ -59,8 +59,8 @@
 
   function draw(canvas, depth, seed) {
     const rect = root.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.15);
-    const scale = depth === "far" ? .62 : depth === "mid" ? .78 : .9;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+    const scale = depth === "far" ? .70 : depth === "mid" ? .88 : 1.0;
     const w = Math.max(240, Math.round(rect.width * dpr * scale));
     const h = Math.max(360, Math.round(rect.height * dpr * scale));
     canvas.width = w; canvas.height = h;
@@ -73,6 +73,8 @@
     const n3 = makeNoise(w,h,depth==="far"?19:depth==="mid"?15:12,random);
     const n4 = makeNoise(w,h,depth==="far"?7:depth==="mid"?5.5:4.5,random);
     const n5 = makeNoise(w,h,2.2,random);
+    const n6 = makeNoise(w,h,depth==="far"?4.2:depth==="mid"?3.2:2.5,random);
+    const n7 = makeNoise(w,h,depth==="far"?1.8:depth==="mid"?1.35:1.05,random);
     const shift = depth==="far" ? .08 : depth==="mid" ? 0 : -.07;
     const threshold = depth==="far" ? .565 : depth==="mid" ? .548 : .535;
     const opacity = depth==="far" ? .72 : depth==="mid" ? .86 : .96;
@@ -81,7 +83,7 @@
       const v=y*invH;
       for(let x=0;x<w;x++){
         const u=x*invW;
-        const broad=n1(x,y), medium=n2(x,y), detail=n3(x,y), fine=n4(x,y), micro=n5(x,y);
+        const broad=n1(x,y), medium=n2(x,y), detail=n3(x,y), fine=n4(x,y), micro=n5(x,y), edgeNoise=n6(x,y), grain=n7(x,y);
         // Large storm masses gather at the sides and lower frame, leaving a
         // naturally broken, luminous opening through the centre.
         const leftMass=Math.exp(-Math.pow((u-(.08+shift))/.34,2)-Math.pow((v-.53)/.42,2));
@@ -95,17 +97,23 @@
         const mass=clamp(leftMass*.78+rightMass*.82+lowerMass*.86+upperRim*.30+tower*.34,0,1.35);
         const aperture=Math.exp(-Math.pow((u-.51)/.29,2)-Math.pow((v-.43)/.34,2));
         const cloudShape=mass*(1-aperture*.80);
-        const turbulence=broad*.37+medium*.29+detail*.19+fine*.105+micro*.045;
-        const density=turbulence*.78+cloudShape*.34;
-        const alpha=smooth(threshold-.075,threshold+.13,density)*cloudShape*opacity;
+        const turbulence=broad*.32+medium*.25+detail*.19+fine*.12+micro*.075+edgeNoise*.05;
+        const ridges=1-Math.abs(fine*2-1);
+        const billow=clamp((medium*.48+detail*.34+fine*.18),0,1);
+        const density=turbulence*.76+cloudShape*.36+Math.max(0,ridges-.56)*.075;
+        const edgeWidth=depth==="near"?.047:depth==="mid"?.060:.078;
+        const edgeBreak=(grain-.5)*.105+(edgeNoise-.5)*.075;
+        const alpha=smooth(threshold-edgeWidth,threshold+edgeWidth,density+edgeBreak)*cloudShape*opacity;
         if(alpha<.012) continue;
         // A broad light source behind the cloud deck creates silver-pink
         // scattering on upper billows and deep violet occlusion underneath.
         const lightSource=Math.exp(-Math.pow((u-.51)/.34,2)-Math.pow((v-.40)/.29,2));
         const topLight=1-smooth(.24,.88,v);
-        const billowLight=smooth(.47,.82,medium*.55+detail*.45);
-        const light=clamp(lightSource*.78+topLight*.22+billowLight*.18,0,1);
-        const shade=clamp((1-v)*.34+light*.66+(fine-.5)*.20,0,1);
+        const billowLight=smooth(.43,.79,billow);
+        const rimLight=smooth(.54,.88,detail*.62+fine*.38);
+        const light=clamp(lightSource*.72+topLight*.18+billowLight*.20+rimLight*.13,0,1);
+        const localShadow=smooth(.42,.78,1-billow)*(.12+cloudShape*.10);
+        const shade=clamp((1-v)*.27+light*.73+(fine-.5)*.24-localShadow,0,1);
         const hueShift=clamp((medium-.42)*.20 + Math.max(0,.5-Math.abs(u-.5))*.035,0,.20);
         const color=palette(shade,depth,light,hueShift);
         const i=(y*w+x)*4;
