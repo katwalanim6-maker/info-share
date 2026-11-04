@@ -75,7 +75,7 @@
     const n5 = makeNoise(w,h,2.2,random);
     const shift = depth==="far" ? .08 : depth==="mid" ? 0 : -.07;
     const threshold = depth==="far" ? .565 : depth==="mid" ? .548 : .535;
-    const opacity = depth==="far" ? .64 : depth==="mid" ? .78 : .88;
+    const opacity = depth==="far" ? .72 : depth==="mid" ? .86 : .96;
     const invW=1/w, invH=1/h;
     for(let y=0;y<h;y++){
       const v=y*invH;
