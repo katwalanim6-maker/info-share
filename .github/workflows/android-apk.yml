@@ -1,4 +1,5 @@
 name: Build ANIM OS Android APK
+run-name: ANIM OS APK build
 
 on:
   workflow_dispatch:
