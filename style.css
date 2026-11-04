@@ -159,3 +159,16 @@ body::after{
 @media(prefers-reduced-motion:reduce){
  .cloudscape .cloud-plane{animation:none!important;will-change:auto}
 }
+
+
+/* Vibrancy correction: stronger colour transmission through all cloud planes */
+.cloudscape{opacity:.99}
+.cloudscape .cloud-plane{mix-blend-mode:screen}
+.cloudscape .cloud-plane-far{opacity:.70;filter:blur(1.5px) saturate(1.34) contrast(1.08)}
+.cloudscape .cloud-plane-mid{opacity:.91;filter:blur(.45px) saturate(1.42) contrast(1.10)}
+.cloudscape .cloud-plane-near{opacity:1;filter:saturate(1.38) contrast(1.12)}
+@media(max-width:520px){
+  .cloudscape{opacity:.98}
+  .cloudscape .cloud-plane-far{filter:blur(1.2px) saturate(1.3) contrast(1.07)}
+  .cloudscape .cloud-plane-mid{filter:blur(.35px) saturate(1.38) contrast(1.09)}
+}
