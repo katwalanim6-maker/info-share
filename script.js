@@ -1,30 +1,51 @@
 (() => {
-  const toast = document.getElementById("toast");
+  "use strict";
+  const $ = (selector) => document.querySelector(selector);
+  const toast = $("#toast");
   let toastTimer;
   function notify(message) {
     toast.textContent = message;
     toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 1900);
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2100);
   }
-  const now = new Date();
-  const hour = now.getHours();
-  document.getElementById("greeting").firstChild.textContent =
-    (hour < 12 ? "Good morning, Anim" : hour < 18 ? "Good afternoon, Anim" : "Good evening, Anim");
-  document.getElementById("date-label").textContent =
-    now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }).toUpperCase();
+  function updateClock() {
+    const now = new Date();
+    const hour = now.getHours();
+    const greeting = hour < 12 ? "Good morning," : hour < 18 ? "Good afternoon," : "Good evening,";
+    $("#greeting").innerHTML = greeting + "<br><span>Anim.</span>";
+    $("#clock").textContent = now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", hour12:false});
+    $("#date-label").textContent = now.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric"}).toUpperCase();
+    $("#day-label").textContent = now.toLocaleDateString([], {weekday:"long"}).toUpperCase();
+  }
+  updateClock();
+  window.setInterval(updateClock, 30000);
 
-  document.querySelectorAll("[data-app]").forEach(button => {
-    button.addEventListener("click", () => notify(button.dataset.app + " is coming soon."));
+  document.querySelectorAll("[data-app]").forEach((button) => {
+    button.addEventListener("click", () => notify(button.dataset.app + " will be available in a future update."));
   });
-  document.getElementById("nova-button").addEventListener("click", () => notify("NOVA integration is planned for a later phase."));
-  document.getElementById("profile-button").addEventListener("click", () => notify("Anim's profile is coming soon."));
-  document.getElementById("all-apps").addEventListener("click", () => notify("The full app library is coming soon."));
-  document.querySelectorAll("[data-tab]").forEach(button => {
+  document.querySelectorAll("[data-project]").forEach((button) => {
+    button.addEventListener("click", () => notify(button.dataset.project + " workspace is coming soon."));
+  });
+  $("#nova-button").addEventListener("click", () => notify("NOVA connection will be added in a future update."));
+  $("#profile-button").addEventListener("click", () => notify("Your personal profile is coming soon."));
+  $("#all-apps").addEventListener("click", () => {
+    $("#apps-section").scrollIntoView({behavior:"smooth", block:"center"});
+    notify("This is your current app collection.");
+  });
+  $("#settings-button").addEventListener("click", () => notify("System settings are coming soon."));
+  document.querySelectorAll("[data-tab]").forEach((button) => {
     button.addEventListener("click", () => {
-      document.querySelectorAll("[data-tab]").forEach(item => item.classList.remove("active"));
+      document.querySelectorAll("[data-tab]").forEach((item) => {
+        item.classList.remove("active");
+        item.removeAttribute("aria-current");
+      });
       button.classList.add("active");
-      if (button.dataset.tab !== "Home") notify(button.dataset.tab + " view is coming soon.");
+      button.setAttribute("aria-current","page");
+      const tab = button.dataset.tab;
+      if (tab === "Home") window.scrollTo({top:0, behavior:"smooth"});
+      else if (tab === "Apps") $("#apps-section").scrollIntoView({behavior:"smooth",block:"start"});
+      else notify(tab + " section is planned for a future update.");
     });
   });
 })();

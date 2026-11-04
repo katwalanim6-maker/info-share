@@ -3,62 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#101114">
-  <meta name="description" content="ANIM OS — Your world. Your system.">
+  <meta name="theme-color" content="#0d0d12">
+  <meta name="description" content="ANIM OS 2.0 — Your world. Your system.">
   <title>ANIM OS 2.0</title>
   <link rel="icon" href="assets/identity/Profile.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <div class="os-shell">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="ANIM OS home"><span class="brand-mark">A</span><span>ANIM <small>OS</small></span></a>
-      <div class="top-actions"><button class="icon-button" aria-label="Notifications">⌁</button><button class="icon-button" aria-label="Settings">⚙</button></div>
+      <a class="brand" href="#" aria-label="ANIM OS home"><span class="brand-symbol">A<span>.</span></span><span class="brand-name">ANIM<span>OS</span></span></a>
+      <div class="top-right"><span class="system-status"><i></i> SYSTEM ONLINE</span><button class="icon-button" id="settings-button" aria-label="Settings">⌘</button></div>
     </header>
 
     <main>
       <section class="welcome">
-        <p class="eyebrow" id="date-label">PERSONAL ENVIRONMENT</p>
-        <h1 id="greeting">Welcome back, Anim<span>.</span></h1>
-        <p class="muted">Your world. Your system.</p>
+        <div><p class="eyebrow" id="date-label">YOUR PERSONAL SPACE</p><h1 id="greeting">Welcome back,<br><span>Anim.</span></h1><p class="welcome-sub">Your world. Your system.</p></div>
+        <div class="time-card"><span id="clock">21:03</span><small id="day-label">WEDNESDAY</small></div>
       </section>
 
-      <section class="identity-panel" aria-label="Anim profile">
-        <div class="identity-copy"><span class="status-dot"></span><span class="eyebrow">YOUR SPACE</span><h2>Make it yours.</h2><p>A personal digital environment, built around you.</p><button class="text-button" id="profile-button">Explore profile <span>↗</span></button></div>
-        <div class="avatar-frame"><img src="assets/identity/Profile.png" alt="Anim profile artwork" onerror="this.style.display='none';this.parentElement.classList.add('avatar-fallback')"><span class="avatar-letter">A</span></div>
+      <section class="anim-hero" aria-label="Anim profile">
+        <div class="hero-glow"></div>
+        <div class="hero-copy">
+          <span class="micro-label"><i></i> THE OWNER</span>
+          <h2>Hey, Anim.</h2>
+          <p>This is your space.<br>Make something extraordinary.</p>
+          <button class="hero-link" id="profile-button">YOUR PROFILE <span>↗</span></button>
+        </div>
+        <div class="portrait-wrap"><div class="portrait-halo"></div><img src="assets/identity/Profile.png" alt="Anim's cartoon avatar" onerror="this.closest('.portrait-wrap').classList.add('image-missing')"><span class="portrait-fallback">A</span></div>
+        <span class="hero-index">ANIM / 001</span>
       </section>
 
-      <section class="section-block nova-card">
-        <div class="nova-symbol" aria-hidden="true"><span></span></div>
-        <div class="nova-copy"><p class="eyebrow">PERSONAL AI</p><h2>NOVA</h2><p class="muted">Your assistant. A separate mind, one tap away.</p></div>
-        <button class="round-action" aria-label="Open NOVA" id="nova-button">↗</button>
+      <section class="nova-card">
+        <div class="nova-orb"><span></span><i></i></div>
+        <div class="nova-info"><span class="micro-label">YOUR PERSONAL AI</span><h2>NOVA</h2><p>Always learning. Always evolving.</p></div>
+        <button class="nova-open" id="nova-button" aria-label="Open NOVA">↗</button>
+        <span class="nova-caption">02 / INTELLIGENCE</span>
       </section>
 
-      <section class="section-block">
-        <div class="section-heading"><div><p class="eyebrow">YOUR TOOLKIT</p><h2>Applications</h2></div><button class="subtle-button" id="all-apps">View all ↗</button></div>
+      <section class="apps-section" id="apps-section">
+        <div class="section-head"><div><span class="micro-label">MADE FOR YOUR FLOW</span><h2>Your applications</h2></div><button class="view-all" id="all-apps">ALL APPS <span>↗</span></button></div>
         <div class="app-grid">
-          <button class="app-item" data-app="Browser"><span class="app-icon">◉</span><span>Browser</span></button>
-          <button class="app-item" data-app="Files"><span class="app-icon">▤</span><span>Files</span></button>
-          <button class="app-item" data-app="Gallery"><span class="app-icon">▧</span><span>Gallery</span></button>
-          <button class="app-item" data-app="Music"><span class="app-icon">♫</span><span>Music</span></button>
-          <button class="app-item" data-app="Projects"><span class="app-icon">⌘</span><span>Projects</span></button>
-          <button class="app-item" data-app="Terminal"><span class="app-icon">›_</span><span>Terminal</span></button>
-          <button class="app-item" data-app="Calendar"><span class="app-icon">▦</span><span>Calendar</span></button>
-          <button class="app-item" data-app="Settings"><span class="app-icon">⚙</span><span>Settings</span></button>
+          <button class="app-item" data-app="Browser"><span class="app-icon icon-browser">◉</span><span>Browser</span></button>
+          <button class="app-item" data-app="Files"><span class="app-icon icon-files">▤</span><span>Files</span></button>
+          <button class="app-item" data-app="Gallery"><span class="app-icon icon-gallery">▧</span><span>Gallery</span></button>
+          <button class="app-item" data-app="Music"><span class="app-icon icon-music">♫</span><span>Music</span></button>
+          <button class="app-item" data-app="Projects"><span class="app-icon icon-projects">⌘</span><span>Projects</span></button>
+          <button class="app-item" data-app="Terminal"><span class="app-icon icon-terminal">›_</span><span>Terminal</span></button>
+          <button class="app-item" data-app="Calendar"><span class="app-icon icon-calendar">▦</span><span>Calendar</span></button>
+          <button class="app-item" data-app="Settings"><span class="app-icon icon-settings">⚙</span><span>Settings</span></button>
         </div>
       </section>
 
-      <section class="section-block workspace">
-        <div class="section-heading"><div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Workspace</h2></div><span class="live-label">● LOCAL PREVIEW</span></div>
-        <button class="project-row"><span class="project-icon">A</span><span class="project-info"><strong>ANIM OS 2.0</strong><small>Personal operating environment</small></span><span class="project-state">IN PROGRESS</span></button>
-        <button class="project-row"><span class="project-icon nova-mini">N</span><span class="project-info"><strong>NOVA Assistant</strong><small>Personal AI companion</small></span><span class="project-state">PROJECT</span></button>
+      <section class="workspace-section">
+        <div class="section-head"><div><span class="micro-label">YOUR WORLD IN PROGRESS</span><h2>Continue working</h2></div><span class="tiny-count">02 PROJECTS</span></div>
+        <button class="project-card" data-project="ANIM OS 2.0"><span class="project-mark">A<span>.</span></span><span class="project-details"><strong>ANIM OS 2.0</strong><small>Personal operating environment</small></span><span class="project-arrow">↗</span></button>
+        <button class="project-card" data-project="NOVA Assistant"><span class="project-mark nova-mark">✳</span><span class="project-details"><strong>NOVA Assistant</strong><small>Offline-first personal AI</small></span><span class="project-arrow">↗</span></button>
       </section>
+      <footer class="footer-note"><span>ANIM OS 2.0</span><span>BUILT AROUND YOU <b>✦</b></span></footer>
     </main>
-
     <nav class="bottom-nav" aria-label="Main navigation">
       <button class="nav-item active" data-tab="Home"><span>⌂</span><small>Home</small></button>
       <button class="nav-item" data-tab="Explore"><span>◈</span><small>Explore</small></button>
-      <button class="nav-item nova-nav" data-tab="NOVA"><span>✳</span><small>NOVA</small></button>
+      <button class="nav-item nav-nova" data-tab="NOVA"><span>✳</span><small>NOVA</small></button>
       <button class="nav-item" data-tab="Apps"><span>▦</span><small>Apps</small></button>
       <button class="nav-item" data-tab="Profile"><span>○</span><small>Profile</small></button>
     </nav>
