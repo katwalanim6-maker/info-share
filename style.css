@@ -81,3 +81,13 @@ body::after{
 @keyframes hero-cloud{0%{transform:translate3d(-8px,0,0) scale(.94);opacity:.65}100%{transform:translate3d(8px,12px,0) scale(1.08);opacity:1}}
 @media(prefers-reduced-motion:reduce){body::before,.ambient-one,.ambient-two,.anim-hero::before{animation:none!important}}
 @media(max-width:360px){.ambient-one{left:-230px}.ambient-two{right:-250px}}
+
+/* Visible layered cloudscape */
+.cloudscape{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:.78;mix-blend-mode:screen}
+.cloudscape svg{position:absolute;width:100%;height:100%;min-height:100vh;display:block}
+.cloudscape g{transform-box:fill-box;transform-origin:center;animation:cloud-drift-sharp 44s ease-in-out infinite alternate}
+.cloudscape g:nth-of-type(2){animation-duration:56s;animation-direction:alternate-reverse}
+.cloudscape g:nth-of-type(3){animation-duration:64s}
+@keyframes cloud-drift-sharp{from{transform:translateX(-5px)}to{transform:translate(7px,5px)}}
+@media(max-width:520px){.cloudscape{opacity:.72}.cloudscape svg{width:145%;left:-22.5%}}
+@media(prefers-reduced-motion:reduce){.cloudscape g{animation:none!important}}
