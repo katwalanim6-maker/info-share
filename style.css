@@ -93,28 +93,30 @@ body::after{
 @media(prefers-reduced-motion:reduce){.cloudscape g{animation:none!important}}
 
 
-/* 65-layer cinematic cloud depth system */
-.cloudscape{opacity:.88;isolation:isolate}
-.cloudscape svg{overflow:visible}
+
+
+/* ANIM OS 2.0 — volumetric storm-cloud depth system */
+.cloudscape{opacity:.94;isolation:isolate;mix-blend-mode:normal;background:#03050b}
+.cloudscape svg{overflow:hidden;filter:saturate(1.1) contrast(1.045)}
 .cloudscape .cloud-field{animation:none!important}
 .cloudscape .cloud-layer{
   transform-box:fill-box;
   transform-origin:center;
-  animation:cloud-depth-drift var(--cloud-speed,52s) ease-in-out infinite alternate;
+  animation:cloud-depth-drift var(--cloud-speed,58s) cubic-bezier(.42,0,.58,1) infinite alternate;
   animation-delay:var(--cloud-phase,0s);
-  will-change:transform;
 }
-.cloudscape .cloud-layer:nth-child(5n+1){filter:brightness(1.12)}
-.cloudscape .cloud-layer:nth-child(5n+2){filter:brightness(.88) saturate(1.12)}
-.cloudscape .cloud-layer:nth-child(7n){mix-blend-mode:screen}
+.cloudscape .cloud-far{filter:brightness(.84) saturate(.94)}
+.cloudscape .cloud-mid{filter:brightness(1.04) saturate(1.12) contrast(1.035)}
+.cloudscape .cloud-near{filter:brightness(.78) saturate(1.16) contrast(1.08)}
+.cloudscape::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:
+    radial-gradient(ellipse 58% 46% at 50% 43%,transparent 12%,#11101e22 48%,#04081482 100%),
+    linear-gradient(180deg,#02050b48 0%,transparent 17%,transparent 70%,#02050bd9 100%);
+}
 @keyframes cloud-depth-drift{
-  0%{transform:translate3d(-9px,2px,0) scale(1)}
-  100%{transform:translate3d(11px,-5px,0) scale(1.018)}
+  0%{transform:translate3d(calc(0px - var(--cloud-drift-x,6px)),calc(0px - var(--cloud-drift-y,3px)),0) scale(.997) rotate(calc(0deg - var(--cloud-tilt,0deg)))}
+  100%{transform:translate3d(var(--cloud-drift-x,6px),var(--cloud-drift-y,3px),0) scale(var(--cloud-scale,1.018)) rotate(var(--cloud-tilt,0deg))}
 }
-@media(max-width:520px){
-  .cloudscape{opacity:.84}
-  .cloudscape svg{width:150%;left:-25%;height:100%}
-}
-@media(prefers-reduced-motion:reduce){
-  .cloudscape .cloud-layer{animation:none!important;will-change:auto}
-}
+@media(max-width:520px){.cloudscape{opacity:.96}.cloudscape svg{width:150%;left:-25%;height:100%}}
+@media(prefers-reduced-motion:reduce){.cloudscape .cloud-layer{animation:none!important}}
