@@ -120,3 +120,16 @@ body::after{
 }
 @media(max-width:520px){.cloudscape{opacity:.96}.cloudscape svg{width:150%;left:-25%;height:100%}}
 @media(prefers-reduced-motion:reduce){.cloudscape .cloud-layer{animation:none!important}}
+
+/* Organic cloud silhouettes: rounded billows, nuanced volume, restrained detail */
+.cloudscape .cloud-layer{transform-box:fill-box;transform-origin:center bottom;backface-visibility:hidden}
+.cloudscape .cloud-body,.cloudscape .cloud-volume,.cloudscape .cloud-underside{shape-rendering:geometricPrecision}
+.cloudscape .cloud-rim-soft{filter:blur(1.4px)}
+.cloudscape .cloud-rim-fine{filter:blur(.22px)}
+.cloudscape .cloud-far{filter:brightness(.86) saturate(.90)}
+.cloudscape .cloud-mid{filter:brightness(1.02) saturate(1.10)}
+.cloudscape .cloud-near{filter:brightness(.78) saturate(1.13) contrast(1.06)}
+@media(max-width:520px){
+  .cloudscape .cloud-rim-soft{filter:blur(1px)}
+}
+@media(prefers-reduced-motion:reduce){.cloudscape .cloud-layer{animation:none!important}}
