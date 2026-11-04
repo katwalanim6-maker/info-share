@@ -38,11 +38,11 @@
     // Richer, layered violet atmosphere: ink shadows -> royal purple ->
     // saturated orchid/magenta -> cool lavender-pink light.
     const dark = depth === "near" ? [5, 7, 20] : depth === "mid" ? [8, 9, 28] : [13, 14, 39];
-    const indigo = [47, 39, 112];
-    const violet = [91, 48, 151];
-    const plum = [145, 62, 157];
-    const rose = [207, 91, 169];
-    const pearl = [255, 190, 231];
+    const indigo = [58, 48, 172];
+    const violet = [116, 43, 214];
+    const plum = [183, 43, 202];
+    const rose = [244, 76, 190];
+    const pearl = [255, 190, 246];
     let c;
     if (t < .25) c = dark.map((v,i)=>v+(indigo[i]-v)*smooth(0,.25,t));
     else if (t < .52) c = indigo.map((v,i)=>v+(violet[i]-v)*smooth(.25,.52,t));
@@ -50,10 +50,10 @@
     else if (t < .93) c = plum.map((v,i)=>v+(rose[i]-v)*smooth(.76,.93,t));
     else c = rose.map((v,i)=>v+(pearl[i]-v)*smooth(.93,1,t));
     // Subtle cool-blue variation prevents the cloud deck becoming one flat hue.
-    const cool = [76, 111, 205];
-    const mix = clamp(hueShift, 0, .22);
+    const cool = [74, 128, 255];
+    const mix = clamp(hueShift, 0, .28);
     c = c.map((v,i)=>v+(cool[i]-v)*mix);
-    const illumination = .70 + light * .76;
+    const illumination = .84 + light * .78;
     return c.map(v => clamp(v * illumination, 0, 255));
   }
 
@@ -105,7 +105,7 @@
         const topLight=1-smooth(.24,.88,v);
         const billowLight=smooth(.47,.82,medium*.55+detail*.45);
         const light=clamp(lightSource*.78+topLight*.22+billowLight*.18,0,1);
-        const shade=clamp((1-v)*.46+light*.54+(fine-.5)*.16,0,1);
+        const shade=clamp((1-v)*.34+light*.66+(fine-.5)*.20,0,1);
         const hueShift=clamp((medium-.42)*.20 + Math.max(0,.5-Math.abs(u-.5))*.035,0,.20);
         const color=palette(shade,depth,light,hueShift);
         const i=(y*w+x)*4;
