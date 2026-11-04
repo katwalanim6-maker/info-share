@@ -34,17 +34,27 @@
       return top + (bottom - top) * sy;
     };
   }
-  function palette(t, depth, light) {
-    const dark = depth === "near" ? [3, 7, 17] : depth === "mid" ? [8, 10, 24] : [13, 17, 34];
-    const violet = [48, 36, 66], mauve = [111, 75, 111];
-    const rose = [190, 137, 169], pearl = [235, 203, 218];
+  function palette(t, depth, light, hueShift) {
+    // Richer, layered violet atmosphere: ink shadows -> royal purple ->
+    // saturated orchid/magenta -> cool lavender-pink light.
+    const dark = depth === "near" ? [5, 7, 20] : depth === "mid" ? [8, 9, 28] : [13, 14, 39];
+    const indigo = [47, 39, 112];
+    const violet = [91, 48, 151];
+    const plum = [145, 62, 157];
+    const rose = [207, 91, 169];
+    const pearl = [255, 190, 231];
     let c;
-    if (t < .34) c = dark.map((v,i)=>v+(violet[i]-v)*smooth(0,.34,t));
-    else if (t < .70) c = violet.map((v,i)=>v+(mauve[i]-v)*smooth(.34,.70,t));
-    else if (t < .91) c = mauve.map((v,i)=>v+(rose[i]-v)*smooth(.70,.91,t));
-    else c = rose.map((v,i)=>v+(pearl[i]-v)*smooth(.91,1,t));
-    const shade = .56 + light * .66;
-    return c.map(v => clamp(v * shade, 0, 255));
+    if (t < .25) c = dark.map((v,i)=>v+(indigo[i]-v)*smooth(0,.25,t));
+    else if (t < .52) c = indigo.map((v,i)=>v+(violet[i]-v)*smooth(.25,.52,t));
+    else if (t < .76) c = violet.map((v,i)=>v+(plum[i]-v)*smooth(.52,.76,t));
+    else if (t < .93) c = plum.map((v,i)=>v+(rose[i]-v)*smooth(.76,.93,t));
+    else c = rose.map((v,i)=>v+(pearl[i]-v)*smooth(.93,1,t));
+    // Subtle cool-blue variation prevents the cloud deck becoming one flat hue.
+    const cool = [76, 111, 205];
+    const mix = clamp(hueShift, 0, .22);
+    c = c.map((v,i)=>v+(cool[i]-v)*mix);
+    const illumination = .70 + light * .76;
+    return c.map(v => clamp(v * illumination, 0, 255));
   }
 
   function draw(canvas, depth, seed) {
@@ -96,10 +106,11 @@
         const billowLight=smooth(.47,.82,medium*.55+detail*.45);
         const light=clamp(lightSource*.78+topLight*.22+billowLight*.18,0,1);
         const shade=clamp((1-v)*.46+light*.54+(fine-.5)*.16,0,1);
-        const color=palette(shade,depth,light);
+        const hueShift=clamp((medium-.42)*.20 + Math.max(0,.5-Math.abs(u-.5))*.035,0,.20);
+        const color=palette(shade,depth,light,hueShift);
         const i=(y*w+x)*4;
         pixels[i]=color[0];pixels[i+1]=color[1];pixels[i+2]=color[2];
-        pixels[i+3]=Math.round(clamp(alpha*(.72+micro*.42),0,.96)*255);
+        pixels[i+3]=Math.round(clamp(alpha*(.82+micro*.42),0,.99)*255);
       }
     }
     ctx.putImageData(image,0,0);
