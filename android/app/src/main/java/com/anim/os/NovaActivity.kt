@@ -154,7 +154,7 @@ class NovaActivity : Activity() {
         }
         chatScroll.addView(
             chatMessages,
-            ScrollView.LayoutParams(
+            ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
@@ -369,7 +369,7 @@ class NovaActivity : Activity() {
 
         worker.execute {
             try {
-                val answer = checkNotNull(conversation).sendMessage(prompt).text.trim()
+                val answer = checkNotNull(conversation).sendMessage(prompt).toString().trim()
                 val cleanAnswer = if (answer.isNotEmpty()) answer else "I couldn't form a response. Please try again."
                 mainHandler.post {
                     if (!destroyed) {
