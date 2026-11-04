@@ -172,3 +172,10 @@ body::after{
   .cloudscape .cloud-plane-far{filter:blur(1.2px) saturate(1.3) contrast(1.07)}
   .cloudscape .cloud-plane-mid{filter:blur(.35px) saturate(1.38) contrast(1.09)}
 }
+
+/* PWA identity and install control */
+.brand-logo{display:block;width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 3px 9px #8d6ad955)}
+.install-button{height:31px;padding:0 10px;border:1px solid #b69cff55;border-radius:10px;background:linear-gradient(135deg,#493568aa,#21172fdd);color:#e5dcff;font-size:8px;font-weight:700;letter-spacing:.12em;box-shadow:inset 0 1px 0 #ffffff20,0 4px 12px #0003}
+.install-button span{font-size:13px;margin-right:4px}
+.install-button[hidden]{display:none}
+@media(max-width:360px){.install-button{padding:0 7px;font-size:7px}.top-right{gap:8px}}

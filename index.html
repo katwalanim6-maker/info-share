@@ -3,7 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d0d12">
+  <meta name="theme-color" content="#171126">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="application-name" content="ANIM OS">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/anim-os-icon.svg">
+  <link rel="apple-touch-icon" href="./assets/icons/anim-os-icon.svg">
   <meta name="description" content="ANIM OS 2.0 — Your world. Your system.">
   <title>ANIM OS 2.0</title>
   <link rel="icon" href="assets/identity/Profile.png">
@@ -21,8 +28,8 @@
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <div class="os-shell">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="ANIM OS home"><span class="brand-symbol">A<span>.</span></span><span class="brand-name">ANIM<span>OS</span></span></a>
-      <div class="top-right"><span class="system-status"><i></i> SYSTEM ONLINE</span><button class="icon-button" id="settings-button" aria-label="Settings">⌘</button></div>
+      <a class="brand" href="#" aria-label="ANIM OS home"><img class="brand-logo" src="assets/brand/anim-os-logo.svg" alt=""><span class="brand-name">ANIM<span>OS</span></span></a>
+      <div class="top-right"><span class="system-status"><i></i> SYSTEM ONLINE</span><button class="install-button" id="install-button" type="button" hidden><span>↓</span> INSTALL</button><button class="icon-button" id="settings-button" aria-label="Settings">⌘</button></div>
     </header>
 
     <main>

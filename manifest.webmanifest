@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "ANIM OS 2.0",
+  "short_name": "ANIM OS",
+  "description": "Your world. Your system. A personal operating environment by ANIM.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#09080f",
+  "theme_color": "#171126",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {"src":"./assets/icons/anim-os-icon.svg","sizes":"192x192","type":"image/svg+xml","purpose":"any"},
+    {"src":"./assets/icons/anim-os-icon.svg","sizes":"512x512","type":"image/svg+xml","purpose":"any"},
+    {"src":"./assets/icons/anim-os-maskable.svg","sizes":"512x512","type":"image/svg+xml","purpose":"maskable"}
+  ]
+}

@@ -34,6 +34,36 @@
     notify("This is your current app collection.");
   });
   $("#settings-button").addEventListener("click", () => notify("System settings are coming soon."));
+
+  let installPrompt = null;
+  const installButton = $("#install-button");
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    installPrompt = event;
+    installButton.hidden = false;
+  });
+  installButton.addEventListener("click", async () => {
+    if (!installPrompt) {
+      notify("Open your browser menu and choose Add to Home screen.");
+      return;
+    }
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    installButton.hidden = true;
+  });
+  window.addEventListener("appinstalled", () => {
+    installButton.hidden = true;
+    notify("ANIM OS installed successfully.");
+  });
+
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch((error) => {
+        console.warn("ANIM OS offline support could not be registered:", error);
+      });
+    });
+  }
   document.querySelectorAll("[data-tab]").forEach((button) => {
     button.addEventListener("click", () => {
       document.querySelectorAll("[data-tab]").forEach((item) => {

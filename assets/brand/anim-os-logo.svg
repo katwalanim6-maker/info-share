@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+<title id="title">ANIM OS mark</title><defs>
+<linearGradient id="bg" x1="12" y1="8" x2="112" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#37254f"/><stop offset=".52" stop-color="#171126"/><stop offset="1" stop-color="#09080f"/></linearGradient>
+<linearGradient id="a" x1="34" y1="20" x2="91" y2="103" gradientUnits="userSpaceOnUse"><stop stop-color="#f0eaff"/><stop offset=".45" stop-color="#c5adff"/><stop offset="1" stop-color="#8764c4"/></linearGradient>
+<linearGradient id="dot" x1="89" y1="83" x2="108" y2="105" gradientUnits="userSpaceOnUse"><stop stop-color="#e5d8ff"/><stop offset="1" stop-color="#9b75e4"/></linearGradient>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter></defs>
+<rect x="4" y="4" width="120" height="120" rx="34" fill="url(#bg)" stroke="#b69cff" stroke-opacity=".35" stroke-width="2"/>
+<path d="M24 98 52 29q3-7 8-7t8 7l28 69H77L60 53 43 98H24Z" fill="#a887eb" opacity=".3" filter="url(#glow)"/>
+<path d="M24 98 52 29q3-7 8-7t8 7l28 69H77L60 53 43 98H24Z" fill="url(#a)"/>
+<path d="M42 77h36" stroke="#21172f" stroke-width="7" stroke-linecap="round" opacity=".8"/><circle cx="99" cy="99" r="9" fill="url(#dot)" stroke="#f0eaff" stroke-opacity=".65"/>
+<path d="M17 30q20-18 45-18" fill="none" stroke="#ffffff" stroke-opacity=".18" stroke-width="2" stroke-linecap="round"/></svg>
