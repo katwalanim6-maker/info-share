@@ -7,7 +7,14 @@
     toast.textContent = message;
     toast.classList.add("show");
     window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2100);
+    toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+  }
+  function openNova() {
+    if (window.AnimOSBridge && typeof window.AnimOSBridge.openNova === "function") {
+      window.AnimOSBridge.openNova();
+      return;
+    }
+    notify("NOVA's on-device AI chat is available in the ANIM OS Android app. Open the APK to choose your local model.");
   }
   function updateClock() {
     const now = new Date();
@@ -25,9 +32,12 @@
     button.addEventListener("click", () => notify(button.dataset.app + " will be available in a future update."));
   });
   document.querySelectorAll("[data-project]").forEach((button) => {
-    button.addEventListener("click", () => notify(button.dataset.project + " workspace is coming soon."));
+    button.addEventListener("click", () => {
+      if (button.dataset.project === "NOVA Assistant") openNova();
+      else notify(button.dataset.project + " workspace is coming soon.");
+    });
   });
-  $("#nova-button").addEventListener("click", () => notify("NOVA connection will be added in a future update."));
+  $("#nova-button").addEventListener("click", openNova);
   $("#profile-button").addEventListener("click", () => notify("Your personal profile is coming soon."));
   $("#all-apps").addEventListener("click", () => {
     $("#apps-section").scrollIntoView({behavior:"smooth", block:"center"});
@@ -75,6 +85,7 @@
       const tab = button.dataset.tab;
       if (tab === "Home") window.scrollTo({top:0, behavior:"smooth"});
       else if (tab === "Apps") $("#apps-section").scrollIntoView({behavior:"smooth",block:"start"});
+      else if (tab === "NOVA") openNova();
       else notify(tab + " section is planned for a future update.");
     });
   });

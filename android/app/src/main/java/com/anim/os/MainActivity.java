@@ -3,20 +3,27 @@ package com.anim.os;
 import android.app.Activity;
 import android.os.Bundle;
 import android.graphics.Color;
-import android.view.View;
+import android.content.Intent;
+import android.net.Uri;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.content.Intent;
-import android.net.Uri;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
-import android.view.Gravity;
 
 public class MainActivity extends Activity {
     private static final String APP_URL = "https://katwalanim6-maker.github.io/info-share/";
     private WebView webView;
+
+    private final class AnimOSBridge {
+        @JavascriptInterface
+        public void openNova() {
+            runOnUiThread(() -> {
+                startActivity(new Intent(MainActivity.this, NovaActivity.class));
+            });
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +33,7 @@ public class MainActivity extends Activity {
 
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(9, 8, 15));
+
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(9, 8, 15));
         webView.getSettings().setJavaScriptEnabled(true);
@@ -35,6 +43,7 @@ public class MainActivity extends Activity {
         webView.getSettings().setSupportZoom(false);
         webView.getSettings().setBuiltInZoomControls(false);
         webView.getSettings().setDisplayZoomControls(false);
+        webView.addJavascriptInterface(new AnimOSBridge(), "AnimOSBridge");
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -48,6 +57,7 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+
         root.addView(webView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
@@ -76,6 +86,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         if (webView != null) {
+            webView.removeJavascriptInterface("AnimOSBridge");
             webView.destroy();
             webView = null;
         }
