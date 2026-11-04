@@ -1,163 +1,30 @@
-// ANIM OS — CORE APPLICATION LOGIC
-// The cinematic intro is automatic. This file only handles the actual site features.
 (() => {
-  'use strict';
-
-  const $ = (id) => document.getElementById(id);
-
-  function startGreeting() {
-    const greeting = $('greeting');
-    if (!greeting) return;
-    const hour = new Date().getHours();
-    greeting.textContent = hour < 12 ? 'Good Morning ☀️' : hour < 18 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
+  const toast = document.getElementById("toast");
+  let toastTimer;
+  function notify(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 1900);
   }
+  const now = new Date();
+  const hour = now.getHours();
+  document.getElementById("greeting").firstChild.textContent =
+    (hour < 12 ? "Good morning, Anim" : hour < 18 ? "Good afternoon, Anim" : "Good evening, Anim");
+  document.getElementById("date-label").textContent =
+    now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }).toUpperCase();
 
-  // Exposed for the automatic intro controller.
-  window.startGreeting = startGreeting;
-
-  const shareBtn = $('shareBtn');
-  if (shareBtn) shareBtn.addEventListener('click', async () => {
-    const shareData = {
-      title: 'Anim Katwal | Digital Identity',
-      text: 'Check out Anim OS',
-      url: window.location.href
-    };
-
-    try {
-      if (navigator.share) await navigator.share(shareData);
-      else {
-        await copyText(window.location.href);
-        showTemporaryButtonState(shareBtn, '🔗 Link Copied');
-      }
-    } catch (error) {
-      if (error && error.name !== 'AbortError') console.warn('Share unavailable:', error);
-    }
+  document.querySelectorAll("[data-app]").forEach(button => {
+    button.addEventListener("click", () => notify(button.dataset.app + " is coming soon."));
   });
-
-  const copyBtn = $('copyBtn');
-  if (copyBtn) copyBtn.addEventListener('click', async () => {
-    try {
-      await copyText('9700068507');
-      showTemporaryButtonState(copyBtn, '✅ Copied!');
-    } catch (error) {
-      console.error('Copy failed:', error);
-      showTemporaryButtonState(copyBtn, '⚠️ Copy failed');
-    }
-  });
-
-  async function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return;
-    }
-
-    const area = document.createElement('textarea');
-    area.value = text;
-    area.setAttribute('readonly', '');
-    area.style.position = 'fixed';
-    area.style.left = '-9999px';
-    document.body.appendChild(area);
-    area.select();
-    const copied = document.execCommand('copy');
-    area.remove();
-    if (!copied) throw new Error('Clipboard command failed');
-  }
-
-  function showTemporaryButtonState(button, text) {
-    const original = button.textContent;
-    button.textContent = text;
-    setTimeout(() => button.textContent = original, 2000);
-  }
-
-  const saveBtn = $('saveBtn');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
-    const contact = [
-      'BEGIN:VCARD',
-      'VERSION:3.0',
-      'FN:Anim Katwal',
-      'TEL:9700068507',
-      'TEL:9712036065',
-      'EMAIL:katwalanim6@gmail.com',
-      'END:VCARD'
-    ].join('\r\n');
-
-    const blob = new Blob([contact], { type: 'text/vcard;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'Anim_Katwal.vcf';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-  });
-
-  const chatBox = $('chat-box');
-  const input = $('user-input');
-  const sendBtn = $('send-btn');
-  let aiBusy = false;
-
-  function addMessage(text, sender) {
-    if (!chatBox) return;
-    const message = document.createElement('div');
-    message.className = `message ${sender}`;
-    message.textContent = text;
-    chatBox.appendChild(message);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-
-  async function aiReply(message) {
-    try {
-      const response = await fetch('https://anim-core.onrender.com/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
-
-      if (!response.ok) throw new Error(`Server returned ${response.status}`);
-      const data = await response.json();
-      return data.reply || "🤖 I couldn't generate a response.";
-    } catch (error) {
-      console.error('AI Error:', error);
-      return '⚠️ AI Anim is temporarily unavailable. Please try again.';
-    }
-  }
-
-  async function sendMessage() {
-    if (!input || aiBusy) return;
-    const text = input.value.trim();
-    if (!text) return;
-
-    aiBusy = true;
-    if (sendBtn) {
-      sendBtn.disabled = true;
-      sendBtn.textContent = 'Thinking…';
-    }
-
-    addMessage(text, 'user');
-    input.value = '';
-    await new Promise(resolve => setTimeout(resolve, 350));
-
-    const reply = await aiReply(text);
-    addMessage(reply, 'ai');
-    aiBusy = false;
-
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.textContent = 'Send';
-    }
-  }
-
-  if (sendBtn) sendBtn.addEventListener('click', sendMessage);
-  if (input) {
-    input.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
+  document.getElementById("nova-button").addEventListener("click", () => notify("NOVA integration is planned for a later phase."));
+  document.getElementById("profile-button").addEventListener("click", () => notify("Anim's profile is coming soon."));
+  document.getElementById("all-apps").addEventListener("click", () => notify("The full app library is coming soon."));
+  document.querySelectorAll("[data-tab]").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-tab]").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      if (button.dataset.tab !== "Home") notify(button.dataset.tab + " view is coming soon.");
     });
-  }
-
-  addMessage("🤖 Hello! I'm AI Anim. Ask me anything about Anim Katwal.", 'ai');
+  });
 })();
