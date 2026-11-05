@@ -38,14 +38,113 @@
     });
   });
   $("#nova-button").addEventListener("click", openNova);
-  $("#profile-button").addEventListener("click", () => notify("Your personal profile is coming soon."));
+  $("#profile-button").addEventListener("click", openProfile);
   $("#all-apps").addEventListener("click", () => {
     $("#apps-section").scrollIntoView({behavior:"smooth", block:"center"});
     notify("This is your current app collection.");
   });
   $("#settings-button").addEventListener("click", () => notify("System settings are coming soon."));
 
-  let installPrompt = null;
+
+  const profileScreen = $("#profile-screen");
+  const profileModal = $("#profile-modal");
+  const profileForm = $("#profile-form");
+  const profileDefaults = {
+    displayName: "Anim Katwal",
+    handle: "anim",
+    bio: "Building ideas into experiences."
+  };
+  let profileData = {...profileDefaults};
+  try {
+    const savedProfile = JSON.parse(localStorage.getItem("animOS.profile") || "null");
+    if (savedProfile && typeof savedProfile === "object") {
+      profileData = {
+        displayName: typeof savedProfile.displayName === "string" ? savedProfile.displayName.slice(0, 40) : profileDefaults.displayName,
+        handle: typeof savedProfile.handle === "string" ? savedProfile.handle.replace(/^@/, "").slice(0, 24) : profileDefaults.handle,
+        bio: typeof savedProfile.bio === "string" ? savedProfile.bio.slice(0, 140) : profileDefaults.bio
+      };
+    }
+  } catch (error) {
+    console.warn("Profile storage is unavailable:", error);
+  }
+
+  function renderProfile() {
+    $("#profile-name").textContent = profileData.displayName || profileDefaults.displayName;
+    $("#profile-handle").textContent = "@" + (profileData.handle || profileDefaults.handle);
+    $("#profile-bio").textContent = profileData.bio || "Add a short introduction about yourself.";
+    const shortName = (profileData.displayName || "Anim").trim().split(/\\s+/)[0] || "Anim";
+    $("#greeting").innerHTML = $("#greeting").innerHTML.replace(/<span>.*?<\\/span>/, "<span></span>");
+    $("#greeting span").textContent = shortName + ".";
+    $(".hero-copy h2").textContent = "Hey, " + shortName + ".";
+  }
+
+  function openProfile() {
+    profileScreen.hidden = false;
+    $("main").classList.add("profile-view-active");
+    document.querySelectorAll("[data-tab]").forEach((item) => {
+      const active = item.dataset.tab === "Profile";
+      item.classList.toggle("active", active);
+      if (active) item.setAttribute("aria-current", "page");
+      else item.removeAttribute("aria-current");
+    });
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function closeProfile() {
+    profileScreen.hidden = true;
+    $("main").classList.remove("profile-view-active");
+    document.querySelectorAll("[data-tab]").forEach((item) => {
+      const active = item.dataset.tab === "Home";
+      item.classList.toggle("active", active);
+      if (active) item.setAttribute("aria-current", "page");
+      else item.removeAttribute("aria-current");
+    });
+  }
+
+  function openProfileEditor() {
+    profileForm.elements.displayName.value = profileData.displayName;
+    profileForm.elements.handle.value = profileData.handle;
+    profileForm.elements.bio.value = profileData.bio;
+    profileModal.hidden = false;
+    profileForm.elements.displayName.focus();
+  }
+
+  function closeProfileEditor() {
+    profileModal.hidden = true;
+  }
+
+  renderProfile();
+  $("#profile-button").addEventListener("click", openProfile);
+  $("#profile-back").addEventListener("click", closeProfile);
+  $("#edit-profile-button").addEventListener("click", openProfileEditor);
+  document.querySelectorAll("[data-close-profile]").forEach((button) => {
+    button.addEventListener("click", closeProfileEditor);
+  });
+  profileForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const displayName = profileForm.elements.displayName.value.trim();
+    const handle = profileForm.elements.handle.value.trim().replace(/^@/, "").replace(/[^a-zA-Z0-9._-]/g, "").slice(0, 24);
+    const bio = profileForm.elements.bio.value.trim().slice(0, 140);
+    if (!displayName || !handle) {
+      notify("Please add a display name and username.");
+      return;
+    }
+    profileData = {displayName:displayName.slice(0, 40), handle, bio};
+    try {
+      localStorage.setItem("animOS.profile", JSON.stringify(profileData));
+    } catch (error) {
+      console.warn("Could not save profile on this device:", error);
+      notify("Profile updated for this session, but device storage is unavailable.");
+    }
+    renderProfile();
+    closeProfileEditor();
+    notify("Your profile has been updated.");
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !profileModal.hidden) closeProfileEditor();
+    else if (event.key === "Escape" && !profileScreen.hidden) closeProfile();
+  });
+\n  let installPrompt = null;
   const installButton = $("#install-button");
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
@@ -83,9 +182,14 @@
       button.classList.add("active");
       button.setAttribute("aria-current","page");
       const tab = button.dataset.tab;
-      if (tab === "Home") window.scrollTo({top:0, behavior:"smooth"});
-      else if (tab === "Apps") $("#apps-section").scrollIntoView({behavior:"smooth",block:"start"});
-      else if (tab === "NOVA") openNova();
+      if (tab === "Home") {
+        if (!profileScreen.hidden) closeProfile();
+        else window.scrollTo({top:0, behavior:"smooth"});
+      } else if (tab === "Profile") openProfile();
+      else if (tab === "Apps") {
+        if (!profileScreen.hidden) closeProfile();
+        $("#apps-section").scrollIntoView({behavior:"smooth",block:"start"});
+      } else if (tab === "NOVA") openNova();
       else notify(tab + " section is planned for a future update.");
     });
   });
