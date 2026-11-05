@@ -55,6 +55,7 @@
     bio: "Building ideas into experiences."
   };
   let profileData = {...profileDefaults};
+
   try {
     const savedProfile = JSON.parse(localStorage.getItem("animOS.profile") || "null");
     if (savedProfile && typeof savedProfile === "object") {
@@ -69,36 +70,36 @@
   }
 
   function renderProfile() {
-    $("#profile-name").textContent = profileData.displayName || profileDefaults.displayName;
+    const displayName = profileData.displayName || profileDefaults.displayName;
+    const shortName = displayName.trim().split(" ")[0] || "Anim";
+    $("#profile-name").textContent = displayName;
     $("#profile-handle").textContent = "@" + (profileData.handle || profileDefaults.handle);
     $("#profile-bio").textContent = profileData.bio || "Add a short introduction about yourself.";
-    const shortName = (profileData.displayName || "Anim").trim().split(/\\s+/)[0] || "Anim";
-    $("#greeting").innerHTML = $("#greeting").innerHTML.replace(/<span>.*?<\\/span>/, "<span></span>");
+    $("#greeting").innerHTML = "Welcome back,<br><span></span>";
     $("#greeting span").textContent = shortName + ".";
     $(".hero-copy h2").textContent = "Hey, " + shortName + ".";
+  }
+
+  function setActiveTab(tabName) {
+    document.querySelectorAll("[data-tab]").forEach((item) => {
+      const active = item.dataset.tab === tabName;
+      item.classList.toggle("active", active);
+      if (active) item.setAttribute("aria-current", "page");
+      else item.removeAttribute("aria-current");
+    });
   }
 
   function openProfile() {
     profileScreen.hidden = false;
     $("main").classList.add("profile-view-active");
-    document.querySelectorAll("[data-tab]").forEach((item) => {
-      const active = item.dataset.tab === "Profile";
-      item.classList.toggle("active", active);
-      if (active) item.setAttribute("aria-current", "page");
-      else item.removeAttribute("aria-current");
-    });
+    setActiveTab("Profile");
     window.scrollTo({top:0, behavior:"smooth"});
   }
 
-  function closeProfile() {
+  function closeProfile(returnTab = "Home") {
     profileScreen.hidden = true;
     $("main").classList.remove("profile-view-active");
-    document.querySelectorAll("[data-tab]").forEach((item) => {
-      const active = item.dataset.tab === "Home";
-      item.classList.toggle("active", active);
-      if (active) item.setAttribute("aria-current", "page");
-      else item.removeAttribute("aria-current");
-    });
+    setActiveTab(returnTab);
   }
 
   function openProfileEditor() {
@@ -115,36 +116,45 @@
 
   renderProfile();
   $("#profile-button").addEventListener("click", openProfile);
-  $("#profile-back").addEventListener("click", closeProfile);
+  $("#profile-back").addEventListener("click", () => closeProfile("Home"));
   $("#edit-profile-button").addEventListener("click", openProfileEditor);
   document.querySelectorAll("[data-close-profile]").forEach((button) => {
     button.addEventListener("click", closeProfileEditor);
   });
+
   profileForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const displayName = profileForm.elements.displayName.value.trim();
-    const handle = profileForm.elements.handle.value.trim().replace(/^@/, "").replace(/[^a-zA-Z0-9._-]/g, "").slice(0, 24);
+    let handle = profileForm.elements.handle.value.trim();
+    if (handle.startsWith("@")) handle = handle.slice(1);
+    handle = Array.from(handle).filter((char) => /^[a-zA-Z0-9._-]$/.test(char)).join("").slice(0, 24);
     const bio = profileForm.elements.bio.value.trim().slice(0, 140);
+
     if (!displayName || !handle) {
       notify("Please add a display name and username.");
       return;
     }
+
     profileData = {displayName:displayName.slice(0, 40), handle, bio};
+    let saved = false;
     try {
       localStorage.setItem("animOS.profile", JSON.stringify(profileData));
+      saved = true;
     } catch (error) {
       console.warn("Could not save profile on this device:", error);
-      notify("Profile updated for this session, but device storage is unavailable.");
     }
+
     renderProfile();
     closeProfileEditor();
-    notify("Your profile has been updated.");
+    notify(saved ? "Your profile has been updated." : "Updated for this session; device storage is unavailable.");
   });
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !profileModal.hidden) closeProfileEditor();
-    else if (event.key === "Escape" && !profileScreen.hidden) closeProfile();
+    else if (event.key === "Escape" && !profileScreen.hidden) closeProfile("Home");
   });
-\n  let installPrompt = null;
+
+  let installPrompt = null;
   const installButton = $("#install-button");
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
@@ -183,14 +193,19 @@
       button.setAttribute("aria-current","page");
       const tab = button.dataset.tab;
       if (tab === "Home") {
-        if (!profileScreen.hidden) closeProfile();
+        if (!profileScreen.hidden) closeProfile("Home");
         else window.scrollTo({top:0, behavior:"smooth"});
       } else if (tab === "Profile") openProfile();
       else if (tab === "Apps") {
-        if (!profileScreen.hidden) closeProfile();
+        if (!profileScreen.hidden) closeProfile("Apps");
         $("#apps-section").scrollIntoView({behavior:"smooth",block:"start"});
-      } else if (tab === "NOVA") openNova();
-      else notify(tab + " section is planned for a future update.");
+      } else if (tab === "NOVA") {
+        if (!profileScreen.hidden) closeProfile("NOVA");
+        openNova();
+      } else {
+        if (!profileScreen.hidden) closeProfile(tab);
+        notify(tab + " section is planned for a future update.");
+      }
     });
   });
 })();
