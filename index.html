@@ -76,7 +76,50 @@
         <button class="project-card" data-project="ANIM OS 2.0"><span class="project-mark">A<span>.</span></span><span class="project-details"><strong>ANIM OS 2.0</strong><small>Personal operating environment</small></span><span class="project-arrow">↗</span></button>
         <button class="project-card" data-project="NOVA Assistant"><span class="project-mark nova-mark">✳</span><span class="project-details"><strong>NOVA Assistant</strong><small>Offline-first personal AI</small></span><span class="project-arrow">↗</span></button>
       </section>
-      <footer class="footer-note"><span>ANIM OS 2.0</span><span>BUILT AROUND YOU <b>✦</b></span></footer>
+
+      <section class="profile-screen" id="profile-screen" aria-labelledby="profile-title" hidden>
+        <div class="profile-screen-head">
+          <div><span class="micro-label">YOUR DIGITAL IDENTITY</span><h2 id="profile-title">Profile</h2></div>
+          <button class="profile-back" id="profile-back" type="button" aria-label="Back to home">←</button>
+        </div>
+
+        <article class="profile-identity-card">
+          <div class="profile-cover"><span>ANIM OS / IDENTITY 001</span><i></i></div>
+          <div class="profile-identity-content">
+            <div class="profile-avatar"><img src="assets/identity/Profile.png" alt="Anim's profile avatar"></div>
+            <div class="profile-name-row"><div><h3 id="profile-name">Anim Katwal</h3><p id="profile-handle">@anim</p></div><span class="profile-status"><i></i> OWNER</span></div>
+            <p class="profile-bio" id="profile-bio">Building ideas into experiences.</p>
+            <button class="profile-edit-button" id="edit-profile-button" type="button">EDIT PROFILE <span>↗</span></button>
+          </div>
+        </article>
+
+        <div class="profile-stats">
+          <div><strong>02</strong><span>PROJECTS</span></div>
+          <div><strong>01</strong><span>AI COMPANION</span></div>
+          <div><strong>∞</strong><span>POSSIBILITIES</span></div>
+        </div>
+
+        <section class="profile-block">
+          <div class="profile-block-heading"><span class="micro-label">A LITTLE ABOUT THIS SPACE</span><h3>About</h3></div>
+          <p class="profile-about-copy">A personal digital universe for creating, exploring technology, and bringing ambitious ideas to life.</p>
+        </section>
+
+        <section class="profile-block">
+          <div class="profile-block-heading"><span class="micro-label">CURRENTLY BUILDING</span><h3>Projects</h3></div>
+          <div class="profile-project-list">
+            <article class="profile-project"><span class="profile-project-icon">A.</span><div><strong>ANIM OS 2.0</strong><small>Your personal digital universe</small></div><span class="profile-project-state">IN PROGRESS</span></article>
+            <article class="profile-project"><span class="profile-project-icon nova-project-icon">✳</span><div><strong>NOVA</strong><small>Offline-first personal AI</small></div><span class="profile-project-state">ACTIVE</span></article>
+          </div>
+        </section>
+
+        <section class="profile-block">
+          <div class="profile-block-heading"><span class="micro-label">WHAT I'M INTO</span><h3>Interests</h3></div>
+          <div class="profile-tags"><span>Artificial intelligence</span><span>Creative technology</span><span>Interface design</span><span>Building software</span></div>
+        </section>
+
+        <p class="profile-local-note"><span>✦</span> Your profile edits are saved on this device.</p>
+      </section>
+\n      <footer class="footer-note"><span>ANIM OS 2.0</span><span>BUILT AROUND YOU <b>✦</b></span></footer>
     </main>
     <nav class="bottom-nav" aria-label="Main navigation">
       <button class="nav-item active" data-tab="Home"><span>⌂</span><small>Home</small></button>
@@ -86,7 +129,24 @@
       <button class="nav-item" data-tab="Profile"><span>○</span><small>Profile</small></button>
     </nav>
   </div>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="profile-modal" id="profile-modal" hidden>
+    <div class="profile-modal-backdrop" data-close-profile></div>
+    <section class="profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="profile-editor-title">
+      <div class="profile-modal-heading"><div><span class="micro-label">MAKE IT YOURS</span><h2 id="profile-editor-title">Edit profile</h2></div><button type="button" class="profile-modal-close" data-close-profile aria-label="Close">×</button></div>
+      <form id="profile-form">
+        <label for="edit-display-name">Display name</label>
+        <input id="edit-display-name" name="displayName" maxlength="40" required autocomplete="name">
+        <label for="edit-handle">Username</label>
+        <input id="edit-handle" name="handle" maxlength="24" required autocomplete="nickname" placeholder="anim">
+        <label for="edit-bio">About you</label>
+        <textarea id="edit-bio" name="bio" rows="3" maxlength="140" placeholder="A few words about you..."></textarea>
+        <p class="profile-form-hint">This information stays in this app on this device.</p>
+        <div class="profile-form-actions"><button type="button" class="profile-cancel" data-close-profile>Cancel</button><button type="submit" class="profile-save">SAVE CHANGES</button></div>
+      </form>
+    </section>
+  </div>
+\n  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="cloudscape.js" defer></script>
   <script src="script.js"></script>
 </body>
